@@ -45,7 +45,7 @@ const TitheList = () => {
                                 <td>{findMember(tithe, "firstName")}</td>
                                 <td>{findMember(tithe, "lastName")}</td>
                                 <td>$ {tithe.amount}</td>
-                                <td><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
+                                <td><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
                             </tr>
                         ))}
                     </tbody>

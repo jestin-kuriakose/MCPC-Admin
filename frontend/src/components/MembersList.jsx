@@ -34,7 +34,7 @@ const MembersList = () => {
                                 <td>{member.lastName}</td>
                                 <td>{member.city}</td>
                                 <td>{member.active ? "Yes" : "No"}</td>
-                                <td><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-1' to={`/member/${member.id}`}>Delete</button></td>
+                                <td><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-sm-1' to={`/member/${member.id}`}>Delete</button></td>
                             </tr>
                             
                         ))}
