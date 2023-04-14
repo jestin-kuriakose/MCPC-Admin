@@ -1,16 +1,50 @@
-import React, { useState } from 'react'
-import { members } from '../dummyData'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from "axios"
+import Modal from './Modal'
+import Loading from './Loading'
 
 const NewMember = () => {
-    const [memberInfo, setMemberInfo] = useState({})
-
+    const [members, setMembers] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
+    const [memberInfo, setMemberInfo] = useState({
+        active: true,
+        province: "ON",
+        country: "Canada"
+    })
     const navigate = useNavigate()
 
-    console.log(memberInfo)
+    const handleSave = async () => {
+        setError("")
+        setIsLoading(true)
+        try {
+            const res = await axios.post("http://localhost:3000/member", memberInfo)
+            setIsLoading(false)
+            navigate('/members')
+        } catch(err) {
+            setIsLoading(false)
+            setError(err.message)
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        const getMembers = async () => {
+            try {
+                const res = await axios.get("http://localhost:3000/member")
+                setMembers(res.data)
+            } catch(err) {
+                console.log(err)
+            }
+
+        }
+        getMembers()
+    }, [])
 
   return (
     <div className='container-fluid'>
+        {isLoading ? <Loading/>:
         <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
             <h4 className="my-3">New Member</h4>
@@ -67,9 +101,10 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="active" className="form-label fw-bold">Active ?</label>
-                        <select name="active" id="active" className='form-select' defaultValue={"yes"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, active: e.target.value}))}>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
+                        <select name="active" id="active" className='form-select' defaultValue={true} required onChange={(e)=>setMemberInfo((prev)=>({...prev, active: e.target.value == 'true' ? true : false}))}>
+                            <option value="">Choose..</option>
+                            <option value={true}>Yes</option>
+                            <option value={false}>No</option>
                         </select>
                         <div className="invalid-feedback">
                             Valid Member is required.
@@ -131,10 +166,10 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                     <label for="country" className="form-label fw-bold">Country</label>
-                    <select className="form-select" id="country" defaultValue={"CA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, country: e.target.value}))}>
+                    <select className="form-select" id="country" defaultValue={"Canada"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, country: e.target.value}))}>
                         <option disabled value="">Choose...</option>
-                        <option value={'US'}>United States</option>
-                        <option value={'CA'}>Canada</option>
+                        <option value={'United States'}>United States</option>
+                        <option value={'Canada'}>Canada</option>
                     </select>
                     <div className="invalid-feedback">
                         Please select a valid country.
@@ -182,8 +217,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="spouse" className="form-label fw-bold">Spouse</label>
-                        <select className="form-select" id="spouse" defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, spouse: e.target.value}))}>
-                            <option value={""} disabled>Choose..</option>
+                        <select className="form-select" id="spouse" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, spouse: e.target.value}))}>
+                            <option value={"NA"} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -197,8 +232,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child1" className="form-label fw-bold">Child 1</label>
-                        <select className="form-select" id="child1" defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child1: e.target.value}))}>
-                        <option  value={""} disabled>Choose..</option>
+                        <select className="form-select" id="child1" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child1: e.target.value}))}>
+                        <option  value={"NA"} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -207,8 +242,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child2" className="form-label fw-bold">Child 2</label>
-                        <select className="form-select" id="child2" defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child2: e.target.value}))}>
-                        <option value={""} disabled>Choose..</option>
+                        <select className="form-select" id="child2" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child2: e.target.value}))}>
+                        <option value={"NA"} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -217,8 +252,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child3" className="form-label fw-bold">Child 3</label>
-                        <select className="form-select" id="child3"  defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child3: e.target.value}))}>
-                        <option value={""} disabled>Choose..</option>
+                        <select className="form-select" id="child3"  defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child3: e.target.value}))}>
+                        <option value={"NA"} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -227,8 +262,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child4" className="form-label fw-bold">Child 4</label>
-                        <select className="form-select" id="child4"  defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child4: e.target.value}))}>
-                        <option value={""} disabled>Choose..</option>
+                        <select className="form-select" id="child4"  defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child4: e.target.value}))}>
+                        <option value={"NA"} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -241,34 +276,16 @@ const NewMember = () => {
                     <button className="btn btn-primary w-sm-25 my-4" data-bs-toggle="modal" data-bs-target="#saveModal" type="button">Save</button>
                     <button type='button' onClick={()=>navigate(-1)} className='btn btn-danger w-sm-25 mx-2'>Cancel</button>
                 </div>
-                
-                {/* Modal Component */}
-                <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="saveModalCenterTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="saveModalLongTitle">Save Changes</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want create this member ?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Yes</button>
-                        </div>
-                        </div>
-                    </div>
-                </div>
 
+                <Modal handleClick={handleSave} type={'member'}/>
+
+                {error == "" ? "" : <p className='bg-danger text-white text-center'>{error}. Please try again.</p>}
 
                 </form>
             </div>
+        </div>}
         </div>
-    </div>
-  )
+    )
 }
 
 export default NewMember

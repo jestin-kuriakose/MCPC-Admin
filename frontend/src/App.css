@@ -1,0 +1,21 @@
+.loading-screen {
+    display: fixed;
+    height: 100vh;
+    width: 100vw;
+    opacity: 0.5;
+  }
+  .loading-container {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+  .loading-spinner {
+  
+  }
+  .loading-spin {
+    object-fit: contain;
+  }
+  

@@ -13,6 +13,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import PDFView from './pages/PDFView';
+import Loading from './components/Loading';
 
 function App() {
   const router = createBrowserRouter([
@@ -49,6 +50,10 @@ function App() {
           path: "newTithe",
           element: <NewTithe/>
         },
+        {
+          path:"test",
+          element: <Loading/>
+        }
 
       ]
     },

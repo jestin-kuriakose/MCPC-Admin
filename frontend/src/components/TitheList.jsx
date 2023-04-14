@@ -1,24 +1,51 @@
-import React from 'react'
-import { members, tithes } from '../dummyData'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 
 const TitheList = () => {
+    const [members, setMembers] = useState([])
+    const [tithes, setTithes] = useState([])
+
+    useEffect(()=> {
+        const getMembers = async() => {
+            try{
+                const res = await axios.get("http://localhost:3000/member")
+                setMembers(res.data)
+            } catch(err) {
+                console.log(err)
+            }
+        }
+        getMembers()
+    }, [])
+
+    useEffect(()=> {
+        const getTithes = async() => {
+            try {
+                const res = await axios.get("http://localhost:3000/tithe")
+                setTithes(res.data)
+            } catch(err) {
+                console.log(err)
+            }
+
+        }
+        getTithes()
+    }, [])
 
     const findMember = (tithe, query) => {
-        const member = members.find(member => member.id == tithe.member)
+        const member = members?.find(member => member.id == tithe.member)
         if (query == "firstName"){
-            return member.firstName
+            return member?.firstName
         } else {
-            return member.lastName
+            return member?.lastName
         }  
     }
 
   return (
 
     <>
-        <div class="container-fluid">
-            <div class="row">
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div className="container-fluid">
+            <div className="row">
+                <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
                 <div className="d-flex mt- align-items-center">
                     <h2 className='fw-normal'>Tithes</h2>
@@ -26,47 +53,47 @@ const TitheList = () => {
                 </div>
 
 
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
+                <div className="table-responsive">
+                    <table className="table table-striped table-sm">
                     <thead>
                         <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">First Name</th>
-                        <th scope="col">Last Name</th>
-                        <th scope="col">Amount</th>
+                            <th key={1} scope="col">ID</th>
+                            <th key={2} scope="col">Date</th>
+                            <th key={3} scope="col">First Name</th>
+                            <th key={4} scope="col">Last Name</th>
+                            <th key={5} scope="col">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         {tithes?.map((tithe) => (
-                            <tr>
-                                <td>{tithe.id}</td>
-                                <td>{tithe.date}</td>
-                                <td>{findMember(tithe, "firstName")}</td>
-                                <td>{findMember(tithe, "lastName")}</td>
-                                <td>$ {tithe.amount}</td>
-                                <td><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
+                            <tr key={tithe.id}>
+                                <td key={1}>{tithe.id}</td>
+                                <td key={2}>{tithe.date}</td>
+                                <td key={3}>{findMember(tithe, "firstName")}</td>
+                                <td key={4}>{findMember(tithe, "lastName")}</td>
+                                <td key={5}>$ {tithe.amount}</td>
+                                <td key={6}><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
                             </tr>
                         ))}
                     </tbody>
                     </table>
 
                     {/* Modal Component */}
-                    <div class="modal fade" id="deleteTitheModal" tabindex="-1" role="dialog" aria-labelledby="saveModalCenterTitle" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="saveModalLongTitle">Delete Tithe Info</h5>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <div className="modal fade" id="deleteTitheModal" tabIndex="-1" role="dialog" aria-labelledby="saveModalCenterTitle" aria-hidden="true">
+                        <div className="modal-dialog modal-dialog-centered" role="document">
+                            <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="saveModalLongTitle">Delete Tithe Info</h5>
+                                <button type="button" className="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <div class="modal-body">
+                            <div className="modal-body">
                                 Are you sure you want to delete this Tithe Info ?
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-danger">Delete</button>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" className="btn btn-danger">Delete</button>
                             </div>
                             </div>
                         </div>
