@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import baseURL from "../http.js"
 
 const TitheList = () => {
     const [members, setMembers] = useState([])
@@ -9,7 +10,7 @@ const TitheList = () => {
     useEffect(()=> {
         const getMembers = async() => {
             try{
-                const res = await axios.get("http://localhost:3000/member")
+                const res = await axios.get(baseURL + "/member")
                 setMembers(res.data)
             } catch(err) {
                 console.log(err)
@@ -21,7 +22,7 @@ const TitheList = () => {
     useEffect(()=> {
         const getTithes = async() => {
             try {
-                const res = await axios.get("http://localhost:3000/tithe")
+                const res = await axios.get(baseURL + "/tithe")
                 setTithes(res.data)
             } catch(err) {
                 console.log(err)

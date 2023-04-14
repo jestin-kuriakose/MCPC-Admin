@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Modal from './Modal'
 import Loading from './Loading'
+import baseURL from "../http.js"
 
 const Tithe = () => {
     const [titheData, setTitheData] = useState({})
@@ -17,7 +18,7 @@ const Tithe = () => {
     useEffect(()=> {
         const fetchTitheData = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/tithe")
+                const res = await axios.get(baseURL + "/tithe")
                 const tithes = res.data
                 const data = tithes.filter((tithe)=>titheId == tithe.id)
                 setTitheData(...data)
@@ -31,7 +32,7 @@ const Tithe = () => {
     useEffect(() => {
         const fetchMemberData = async() => {
             try {
-                const res = await axios.get("http://localhost:3000/member")
+                const res = await axios.get(baseURL + "/member")
                 setMembers(res.data)
             } catch(err) {
                 console.log(err)
@@ -47,7 +48,7 @@ const Tithe = () => {
     const handleSave = async () => {
         setIsLoading(true)
         try{
-            const res = await axios.patch(`http://localhost:3000/tithe/${titheId}`, editedTitheData)
+            const res = await axios.patch(`${baseURL}/tithe/${titheId}`, editedTitheData)
             console.log(res.data)
             setIsLoading(false)
             navigate('/tithes')

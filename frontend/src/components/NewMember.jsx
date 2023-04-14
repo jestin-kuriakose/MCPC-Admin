@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from "axios"
 import Modal from './Modal'
 import Loading from './Loading'
+import baseURL from "../http.js"
 
 const NewMember = () => {
     const [members, setMembers] = useState([])
@@ -19,7 +20,7 @@ const NewMember = () => {
         setError("")
         setIsLoading(true)
         try {
-            const res = await axios.post("http://localhost:3000/member", memberInfo)
+            const res = await axios.post(baseURL + "/member", memberInfo)
             setIsLoading(false)
             navigate('/members')
         } catch(err) {
@@ -32,7 +33,7 @@ const NewMember = () => {
     useEffect(() => {
         const getMembers = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/member")
+                const res = await axios.get(baseURL + "/member")
                 setMembers(res.data)
             } catch(err) {
                 console.log(err)

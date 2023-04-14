@@ -1,12 +1,13 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import baseURL from "../http.js"
 
 const Members = () => {
     const [members, setMembers] = useState([])
     useEffect(()=> {
         const getMembers = async () => {
-            const res = await axios.get("http://localhost:3000/member")
+            const res = await axios.get(baseURL + "/member")
             console.log(res.data)
             setMembers(res.data)
         }

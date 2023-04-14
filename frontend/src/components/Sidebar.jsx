@@ -8,7 +8,7 @@ const Sidebar = () => {
             <div className="position-sticky pt-3 sidebar-sticky">
                 <ul className="nav flex-column">
                 <li className="nav-item">
-                    <Link to={'/dashboard'} className="nav-link" aria-current="page" href="#">
+                    <Link to={'/'} className="nav-link" aria-current="page" href="#">
                     <span data-feather="home" className="align-text-bottom"></span>
                     Dashboard
                     </Link>

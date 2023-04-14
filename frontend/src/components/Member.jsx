@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Modal from './Modal'
 import Loading from './Loading'
+import baseURL from "../http.js"
 
 const Member = () => {
     const location = useLocation()
@@ -17,7 +18,7 @@ const Member = () => {
 
     useEffect(()=> {
         const fetchMemberData = async() => {
-            const res = await axios.get(`http://localhost:3000/member`)
+            const res = await axios.get(baseURL + "/member")
             const data = res.data
             const filteredData = data?.filter(member => member.id == memberId)
             setMembers(res.data)
@@ -30,7 +31,7 @@ const Member = () => {
         setIsLoading(true)
         setError("")
         try {
-            const res = await axios.patch(`http://localhost:3000/member/${memberId}`, editedMemberData)
+            const res = await axios.patch(`${baseURL}/member/${memberId}`, editedMemberData)
             console.log(res.data)
             setIsLoading(false)
             navigate('/members')

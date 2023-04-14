@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import Modal from './Modal'
 import axios from 'axios'
 import Loading from './Loading'
+import baseURL from "../http.js"
 
 const NewTithe = () => {
     const navigate = useNavigate()
@@ -15,7 +16,7 @@ const NewTithe = () => {
     useEffect(() => {
         const fetchMembers = async() => {
             try {
-                const res = await axios.get("http://localhost:3000/member")
+                const res = await axios.get(baseURL + "/member")
                 setMembers(res.data)
             } catch(err) {
                 console.log(err)
@@ -28,7 +29,7 @@ const NewTithe = () => {
         setIsLoading(true)
         setError("")
         try{
-            const res = await axios.post("http://localhost:3000/tithe", titheInfo)
+            const res = await axios.post(baseURL + "/tithe", titheInfo)
             console.log(res.data)
             setIsLoading(false)
             navigate('/tithes')
