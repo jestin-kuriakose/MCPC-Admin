@@ -31,4 +31,13 @@ router.post('/users', (req, res) => {
     });
 });
 
+router.post('/login', (req, res) => {
+    console.log(req.body)
+    if(req.body.email == "jestink@live.com" && req.body.password == "test") {
+        return res.status(200).json({message: "Success"})
+    }
+    return res.status(403).json("User not found")
+
+})
+
 export default router;

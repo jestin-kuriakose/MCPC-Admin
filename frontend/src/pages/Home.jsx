@@ -1,5 +1,5 @@
 import React from 'react'
-import MembersList from '../components/MembersList'
+import MembersList from './MembersList'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import Dashboard from '../components/Dashboard'

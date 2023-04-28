@@ -1,11 +1,11 @@
 import './App.css'
 import Dashboard from './components/Dashboard';
-import Member from './components/Member';
-import MembersList from './components/MembersList';
+import SingleMember from './components/SingleMember';
+import MembersList from './pages/MembersList';
 import NewMember from './components/NewMember';
 import NewTithe from './components/NewTithe';
 import Tithe from './components/Tithe';
-import TitheList from './components/TitheList';
+import TitheList from './pages/TitheList';
 import ErrorPage from './pages/ErrorPage';
 import Home from './pages/Home'
 import {
@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 import PDFView from './pages/PDFView';
 import Loading from './components/Loading';
+import Login from './pages/Login';
 
 function App() {
   const router = createBrowserRouter([
@@ -32,7 +33,7 @@ function App() {
         },
         {
           path: "member/:memberId",
-          element: <Member/>
+          element: <SingleMember/>
         },
         {
           path: "newMember",
@@ -60,6 +61,10 @@ function App() {
     {
       path:"pdfView",
       element: <PDFView/>
+    },
+    {
+      path: "login",
+      element: <Login/>
     }
   ])
 

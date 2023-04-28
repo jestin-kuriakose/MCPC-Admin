@@ -19,3 +19,27 @@
     object-fit: contain;
   }
   
+
+  .form-signin {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-signin form{
+    width: 330px;
+  }
+
+
+.skeleton {
+  animation: sk 1s ease infinite alternate;
+  /* background-color: #313131; */
+}
+
+@keyframes sk {
+  to {
+    opacity: 0.5;
+  }
+}
+  

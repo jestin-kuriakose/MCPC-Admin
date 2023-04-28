@@ -2,8 +2,8 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { tithes } from '../dummyData'
 import { Link } from 'react-router-dom'
 import axios from "axios"
-const Members = React.lazy(()=>import('./Members'))
-import Loading from './Loading'
+const Members = React.lazy(()=>import('../components/Members'))
+import Loading from '../components/Loading'
 import baseURL from "../http.js"
 
 const MembersList = () => {
@@ -18,25 +18,9 @@ const MembersList = () => {
                     <h2 className='fw-normal'>Members</h2>
                     <Link to={'/newMember'} className="btn btn-outline-primary btn-sm ms-3 h-75">Add a New Member</Link>
                 </div>
-
-                <div className="table-responsive">
-                    <table className="table table-striped table-sm">
-                    <thead>
-                        <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">First Name</th>
-                        <th scope="col">Last Name</th>
-                        <th scope="col">City</th>
-                        <th scope="col">Active</th>
-                        </tr>
-                    </thead>
-                    <tbody>
                         <Suspense fallback={<Loading />}>
-                            <Members />
+                            <Members count={10}/>
                         </Suspense>
-                    </tbody>
-                    
-                    </table>
 
                     {/* Modal Component */}
                     <div className="modal fade" id="deleteMemberModal" tabIndex="-1" role="dialog" aria-labelledby="saveModalCenterTitle" aria-hidden="true">
@@ -59,7 +43,6 @@ const MembersList = () => {
                         </div>
                     </div>
 
-                </div>
                 </main>
             </div>
         </div>

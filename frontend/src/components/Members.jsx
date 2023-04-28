@@ -1,37 +1,65 @@
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import baseURL from "../http.js"
+import { useDataFetch } from '../hooks/use-datafetch.js';
 
-const Members = () => {
+const Members = ({count}) => {
     const [members, setMembers] = useState([])
-    useEffect(()=> {
-        const getMembers = async () => {
-            const res = await axios.get(baseURL + "/member")
-            console.log(res.data)
-            setMembers(res.data)
-        }
-        getMembers()
-    },[])
 
-    if (!members) {
-        throw new Promise(resolve => setTimeout(resolve, 1000));
-      }
+    const { data, isLoading, isError, error } = useDataFetch('/member')
+
+    if(isError) {
+        console.log(error.message)
+    }
+
+    useEffect(()=> {
+        setMembers(data?.data)
+    },[data])
+
+    const TableSkeleton = () => (
+        <tr>
+            <td key={''} className='skeleton'>{"  .   "}</td>
+            <td key={''} className='skeleton'>{"  .   "}</td>
+            <td key={''} className='skeleton'>{"  .   "}</td>
+            <td key={''} className='skeleton'>{"  .   "}</td>
+            <td key={''} className='skeleton'>{"  .   "}</td>
+        </tr>
+    )
 
   return (
     <>
+        <div className="table-responsive">
+                
+            <table className="table table-striped table-sm ">
+                <thead>
+                    <tr>
+                        <th key={''} scope="col">ID</th>
+                        <th key={''} scope="col">First Name</th>
+                        <th key={''} scope="col">Last Name</th>
+                        <th key={''} scope="col">City</th>
+                        <th key={''} scope="col">Active</th>
+                    </tr>
+                </thead>
+                <tbody className=''>
 
-        {members?.map((member) => (
-            <tr>
-                <td>{member.id}</td>
-                <td>{member.firstName}</td>
-                <td>{member.lastName}</td>
-                <td>{member.city}</td>
-                <td>{member.active ? "Yes" : "No"}</td>
-                <td><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-sm-1' to={`/member/${member.id}`}>Delete</button></td>
-            </tr>
-        ))}
-        
+                {!isLoading ? members?.map((member, index) => (
+                    index < count &&
+                    <tr key={index}>
+                        <td key={''}>{member.id}</td>
+                        <td key={''}>{member.firstName}</td>
+                        <td key={''}>{member.lastName}</td>
+                        <td key={''}>{member.city}</td>
+                        <td key={''}>{member.active ? "Yes" : "No"}</td>
+                        <td key={''}><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-sm-1' to={`/member/${member.id}`}>Delete</button></td>
+                    </tr>
+                ))
+                : 
+                    Array(count).fill(<TableSkeleton/>)
+                }
+
+                </tbody>
+            </table> 
+        </div>
+                
     </>
   )
 }

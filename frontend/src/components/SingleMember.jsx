@@ -5,7 +5,7 @@ import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
 
-const Member = () => {
+const SingleMember = () => {
     const location = useLocation()
     const memberId = location.pathname.split('/')[2]
     const [members, setMembers] = useState([])
@@ -268,4 +268,4 @@ const Member = () => {
   )
 }
 
-export default Member
+export default SingleMember
