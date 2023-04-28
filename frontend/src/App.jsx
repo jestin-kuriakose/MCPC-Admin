@@ -1,71 +1,70 @@
-import './App.css'
-import Dashboard from './components/Dashboard';
-import SingleMember from './components/SingleMember';
-import MembersList from './pages/MembersList';
-import NewMember from './components/NewMember';
-import NewTithe from './components/NewTithe';
-import Tithe from './components/Tithe';
-import TitheList from './pages/TitheList';
-import ErrorPage from './pages/ErrorPage';
-import Home from './pages/Home'
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import PDFView from './pages/PDFView';
+import React, { lazy, Suspense } from 'react';
+import './App.css'
+
+const Dashboard = React.lazy( () => import("./components/Dashboard"))
+const SingleMember = React.lazy( () => import("./components/SingleMember"))
+const NewMember = React.lazy( () => import("./components/NewMember"))
+const NewTithe = React.lazy( () => import("./components/NewTithe"))
+const Tithe = React.lazy( () => import("./components/Tithe"))
+const TitheList = React.lazy( () => import("./pages/TitheList"))
+const ErrorPage = React.lazy( () => import("./pages/ErrorPage"))
+const Home = React.lazy( () => import("./pages/Home"))
+const PDFView = React.lazy( () => import("./pages/PDFView"))
+const Login = React.lazy( () => import("./pages/Login"))
+const MembersList = React.lazy(()=>import("./pages/MembersList"))
 import Loading from './components/Loading';
-import Login from './pages/Login';
 
 function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <Home/>,
+      element: <Suspense fallback={<Loading/>}><Home/></Suspense>,
       errorElement: <ErrorPage/>,
       children: [
         {
           path: "/",
-          element: <Dashboard/>
+          element: <Suspense fallback={<Loading/>}><Dashboard/></Suspense>
         },
         {
           path: "members",
-          element: <MembersList/>
+          element: <Suspense fallback={<Loading/>}><MembersList/></Suspense>
         },
         {
           path: "member/:memberId",
-          element: <SingleMember/>
+          element: <Suspense fallback={<Loading/>}><SingleMember/></Suspense>
         },
         {
           path: "newMember",
-          element: <NewMember/>
+          element: <Suspense fallback={<Loading/>}><NewMember/></Suspense>
         },
         {
           path: "tithes",
-          element: <TitheList/>
+          element: <Suspense fallback={<Loading/>}><TitheList/></Suspense>
         },
         {
           path: "tithe/:titheId",
-          element: <Tithe/>
+          element: <Suspense fallback={<Loading/>}><Tithe/></Suspense>
         },
         {
           path: "newTithe",
-          element: <NewTithe/>
+          element: <Suspense fallback={<Loading/>}><NewTithe/></Suspense>
         },
-        {
-          path:"test",
-          element: <Loading/>
-        }
+
 
       ]
     },
     {
       path:"pdfView",
-      element: <PDFView/>
+      element: <Suspense fallback={<Loading/>}><PDFView/></Suspense>
     },
     {
       path: "login",
-      element: <Login/>
-    }
+      element: <Suspense fallback={<Loading/>}><Login/></Suspense>
+    },
   ])
 
   return (

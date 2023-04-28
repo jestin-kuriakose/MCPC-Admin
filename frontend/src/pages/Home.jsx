@@ -1,10 +1,7 @@
 import React from 'react'
-import MembersList from './MembersList'
-import Header from '../components/Header'
-import Sidebar from '../components/Sidebar'
-import Dashboard from '../components/Dashboard'
 import { Outlet } from 'react-router-dom'
-
+const Header = React.lazy( () => import("../components/Header"))
+const Sidebar = React.lazy( () => import("../components/Sidebar"))
 
 const Home = () => {
   return (

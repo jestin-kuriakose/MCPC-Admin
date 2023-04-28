@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
-import baseURL from "../http.js"
-import Tithes from '../components/Tithes.jsx'
+import Loading from '../components/Loading'
+const Tithes = React.lazy(()=> import("../components/Tithes"))
 
 const TitheList = ({count}) => {
-
   return (
-
     <>
         <div className="container-fluid">
             <div className="row">
@@ -17,9 +14,9 @@ const TitheList = ({count}) => {
                     <h2 className='fw-normal'>Tithes</h2>
                     <Link to={'/newTithe'} className="btn btn-outline-primary btn-sm ms-3 h-75 ">Add New Tithe Info</Link>
                 </div>
-
-                <Tithes count={10}/>
-
+                <Suspense fallback={<Loading/>}>
+                    <Tithes count={10}/>
+                </Suspense>
                     {/* Modal Component */}
                     <div className="modal fade" id="deleteTitheModal" tabIndex="-1" role="dialog" aria-labelledby="saveModalCenterTitle" aria-hidden="true">
                         <div className="modal-dialog modal-dialog-centered" role="document">

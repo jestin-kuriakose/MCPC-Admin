@@ -1,9 +1,6 @@
 import React, { useRef, useState } from 'react'
-import axios from 'axios'
-import baseURL from '../http'
-import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { loginReq } from '../apiCalls'
-import { useCustomHook } from '../hooks/useCustomHook'
 
 const Login = () => {
   const [email, setEmail] = useState("")

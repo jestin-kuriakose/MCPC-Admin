@@ -1,10 +1,7 @@
-import React, { Suspense, useEffect, useState } from 'react'
-import { tithes } from '../dummyData'
+import React, { Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import axios from "axios"
-const Members = React.lazy(()=>import('../components/Members'))
 import Loading from '../components/Loading'
-import baseURL from "../http.js"
+const Members = React.lazy(()=>import('../components/Members'))
 
 const MembersList = () => {
   
@@ -18,7 +15,7 @@ const MembersList = () => {
                     <h2 className='fw-normal'>Members</h2>
                     <Link to={'/newMember'} className="btn btn-outline-primary btn-sm ms-3 h-75">Add a New Member</Link>
                 </div>
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<Loading/>}>
                             <Members count={10}/>
                         </Suspense>
 
