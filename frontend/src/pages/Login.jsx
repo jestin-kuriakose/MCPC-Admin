@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import axios from 'axios'
 import baseURL from '../http'
-import { QueryClient, useMutation } from '@tanstack/react-query'
+import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { loginReq } from '../apiCalls'
 import { useCustomHook } from '../hooks/useCustomHook'
 
@@ -9,10 +9,12 @@ const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
+  const queryClient = useQueryClient()
+
   const mutation = useMutation({
     mutationFn: loginReq,
     onSuccess: (data, variables, context) => {
-      console.log(data)
+      queryClient.invalidateQueries(["user", "login"])
     },
     onError: (error, variables, context) => {
       console.log(error)
@@ -45,7 +47,6 @@ const Login = () => {
             <div class="alert alert-success d-flex align-items-center mt-2" role="alert">
                 You are signed in
             </div>}
-              <button className="btn btn-primary" onClick={() => mutation.reset()}>reset</button>
         </form>
     </main>
   )
