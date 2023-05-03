@@ -3,9 +3,6 @@ import axios from "axios"
 import baseURL from "../http"
 
 export const useDataFetch = () => {
-    // const splitEndpoint = endpoint.split('/')
-    // const len = splitEndpoint.length - 1
-    // const key = splitEndpoint.slice(-len)
 
     return useQuery({
         queryKey: ['member'],
@@ -23,16 +20,23 @@ export const useFetchData = () => {
     });
   }
 
-// export const useDataFetch = (endpoint) => {
-//     const splitEndpoint = endpoint.split('/')
-//     const len = splitEndpoint.length - 1
-//     const key = splitEndpoint.slice(-len)
 
-//     return useQuery({
-//         queryKey: key,
-//         queryFn: async() => {
-//             const { data } = await axios.get(baseURL + endpoint)
-//             return { data }
-//         }
-//     })
-// }
+export const useFetchTitheAmount = (endpoint) => {
+    return useQuery({
+        queryKey: ['reports', 'amount'],
+        queryFn: async() => {
+            const { data } = await axios.get(baseURL + endpoint)
+            return { data }
+        }
+    })
+}
+
+export const useFetchTotalTithe = (endpoint) => {
+    return useQuery({
+        queryKey: ['reports', 'totalTitheAmount'],
+        queryFn: async() => {
+            const { data } = await axios.get(baseURL + endpoint)
+            return { data }
+        }
+    })
+}

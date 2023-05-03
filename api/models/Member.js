@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
+import Tithe from "./Tithe.js";
 
 const Member = sequelize.define("members",{
     firstName: {
@@ -69,5 +70,8 @@ const Member = sequelize.define("members",{
         type: DataTypes.INTEGER
     },
 })
+
+Member.hasMany(Tithe);
+Tithe.belongsTo(Member);
 
 export default Member

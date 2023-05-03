@@ -8,7 +8,7 @@ import baseURL from "../http.js"
 
 const NewTithe = () => {
     const navigate = useNavigate()
-    const [titheInfo, setTitheInfo] = useState({})
+    const [titheInfo, setTitheInfo] = useState({date: new Date().toLocaleDateString()})
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
@@ -26,6 +26,7 @@ const NewTithe = () => {
     }, [])
 
     const handleSave = async() => {
+        console.log(titheInfo)
         setIsLoading(true)
         setError("")
         try{
@@ -48,7 +49,7 @@ const NewTithe = () => {
                     <div className="row g-3">
                         <div className="col-sm-4">
                             <label for="member" className="form-label fw-bold">Member</label>
-                            <select name="member" id="member" className="form-select" defaultValue={''} required onChange={(e)=>setTitheInfo((prev)=>({...prev, member: e.target.value}))}>
+                            <select name="member" id="member" className="form-select" defaultValue={''} required onChange={(e)=>setTitheInfo((prev)=>({...prev, memberId: e.target.value}))}>
                                 <option value="" disabled>Choose...</option>
                                     {members?.map((member) => (
                                         <option value={member.id}>{member.firstName + " " + member.lastName}</option>
@@ -61,7 +62,7 @@ const NewTithe = () => {
 
                         <div className="col-sm-2">
                             <label htmlFor="" className="form-label">Date</label>
-                            <input onChange={(e)=>setTitheInfo((prev)=>({...prev, date: e.target.value}))} defaultValue={new Date().toISOString().split('T')[0]} type="date" className='form-control' required/>
+                            <input onChange={(e)=>setTitheInfo((prev)=>({...prev, date: new Date(e.target.value).toLocaleDateString()}))} defaultValue={new Date().toISOString().split('T')[0]} type="date" className='form-control' required/>
                             <div className="invalid-feedback">
                                 Valid Member is required.
                         </div>

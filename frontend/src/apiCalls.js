@@ -14,3 +14,7 @@ export const fetchTithes = async () => {
 export const loginReq = async (loginInfo) => {
     return await axios.post(baseURL + '/user/login', loginInfo)
 }
+
+export const fetchTotalTithe = async(endpoint) => {
+    return await axios.get(baseURL + endpoint)
+}

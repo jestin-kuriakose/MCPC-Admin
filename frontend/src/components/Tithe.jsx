@@ -57,7 +57,7 @@ const Tithe = () => {
             setIsLoading(false)
         }
     }
-console.log(editedTitheData)
+
   return (
     <div className='container-fluid'>
         {isLoading ? <Loading/> : 
@@ -68,7 +68,7 @@ console.log(editedTitheData)
                 <div className="row g-3">
                     <div className="col-sm-4">
                         <label htmlFor="firstName" className="form-label fw-bold">Member</label>
-                            <select id='member' name='member' className='form-select' value={editedTitheData?.member ? editedTitheData?.member : titheData?.member} onChange={handleChange}>
+                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : titheData?.memberId} onChange={handleChange}>
                                 {members?.map((member) => (
                                     <option key={member?.id} id={member?.id} value={member?.id}>{member?.firstName + " " + member?.lastName}</option>
                                 ))}

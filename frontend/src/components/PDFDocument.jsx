@@ -122,20 +122,20 @@ const PDFDocument = ({params}) => {
           <View style={styles.section}>
             <View>
               <Text style={styles.text}>Place: Kitchener</Text>
-              <Text style={styles.subText}>January 4th, 2023</Text>
+              <Text style={styles.subText}>{new Date().toDateString()}</Text>
             </View>
             <View>
-              <Text style={styles.text}>Receipt No. 2022-013</Text>
+              <Text style={styles.text}>Receipt No. {params.year}-00{params.memberId}</Text>
             </View>
           </View>
 
-          <Text style={styles.text}>Mr. {params.firstName} {params.lastName}</Text>
-          <Text style={styles.subText}>Unit A, 79 Florence Avenue,</Text>
-          <Text style={styles.subText}>Kitchener, ON, N2A 2K9</Text>
+          <Text style={styles.text}>{params.firstName} {params.lastName}</Text>
+          <Text style={styles.subText}>{params.address1}, {params.address2}</Text>
+          <Text style={styles.subText}>{params.city}, {params.province}, {params.postalCode}</Text>
 
           <View style={styles.section}>
             <Text style={styles.text}>Thank you for your financial support during the year: {params.year}</Text>
-            <Text style={styles.text}>Amount: $2000</Text>
+            <Text style={styles.text}>Amount: ${params.titheAmount}</Text>
           </View>
 
           <Text style={styles.sigText1}>Authorized signature: …………………………….</Text>
@@ -158,20 +158,20 @@ const PDFDocument = ({params}) => {
           <View style={styles.section}>
             <View>
               <Text style={styles.text}>Place: Kitchener</Text>
-              <Text style={styles.subText}>January 4th, 2023</Text>
+              <Text style={styles.subText}>{new Date().toDateString()}</Text>
             </View>
             <View>
-              <Text style={styles.text}>Receipt No. 2022-013</Text>
+              <Text style={styles.text}>Receipt No. {params.year}-00{params.memberId}</Text>
             </View>
           </View>
 
-          <Text style={styles.text}>Mr. Jestin Kuriakose,</Text>
-          <Text style={styles.subText}>Unit A, 79 Florence Avenue,</Text>
-          <Text style={styles.subText}>Kitchener, ON, N2A 2K9</Text>
+          <Text style={styles.text}>{params.firstName} {params.lastName}</Text>
+          <Text style={styles.subText}>{params.address1}, {params.address2}</Text>
+          <Text style={styles.subText}>{params.city}, {params.province}, {params.postalCode}</Text>
 
           <View style={styles.section}>
-            <Text style={styles.text}>Thank you for your financial support during the year: 2022</Text>
-            <Text style={styles.text}>Amount: $2000</Text>
+            <Text style={styles.text}>Thank you for your financial support during the year: {params.year}</Text>
+            <Text style={styles.text}>Amount: ${params.titheAmount}</Text>
           </View>
 
           <Text style={styles.sigText1}>Authorized signature: …………………………….</Text>

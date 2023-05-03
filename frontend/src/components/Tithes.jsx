@@ -27,7 +27,7 @@ const Tithes = ({count}) => {
     }, [memberQuery.data, titheQuery.data])
 
     const findMember = (tithe, query) => {
-        const member = members?.find(member => member.id == tithe.member)
+        const member = members?.find(member => member.id == tithe.memberId)
         if (query == "firstName"){
             return member?.firstName
         } else {
@@ -36,12 +36,12 @@ const Tithes = ({count}) => {
     }
 
     const TableSkeleton = () => (
-        <tr>
-            <td>{"."}</td>
-            <td>{"."}</td>
-            <td>{"."}</td>
-            <td>{"."}</td>
-            <td>{"."}</td>
+        <tr key={Math.random()*10}>
+            <td key={1}>{"."}</td>
+            <td key={2}>{"."}</td>
+            <td key={3}>{"."}</td>
+            <td key={4}>{"."}</td>
+            <td key={5}>{"."}</td>
         </tr>
     )
 
