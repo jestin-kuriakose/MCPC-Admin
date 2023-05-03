@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDataFetch } from '../hooks/use-datafetch.js';
+import { CSVLink } from "react-csv"
 
 const Members = ({count}) => {
     const [members, setMembers] = useState([])
@@ -28,7 +29,7 @@ const Members = ({count}) => {
   return (
     <>
         <div className="table-responsive">
-                
+            { members && <CSVLink data={members} className='btn btn-primary my-3 btn-sm' filename={"members.csv"} target="_blank">Export to Excel</CSVLink>}
             <table className="table table-striped table-sm ">
                 <thead>
                     <tr>

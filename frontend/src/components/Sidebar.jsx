@@ -27,16 +27,48 @@ const Sidebar = () => {
                 </li>
 
                 <li className="nav-item">
-                    <Link to={'/reports'} className="nav-link" href="#">
+                    {/* <Link to={'/reports'} className="nav-link" href="#">
                     <span data-feather="bar-chart-2" className="align-text-bottom"></span>
                     Reports
-                    </Link>
+                    </Link> */}
+                    
                 </li>
                 </ul>
 
                 <div className="btn btn-primary mt-4 mx-2">Add Weekly Tithe</div>
+
+                <div class="accordion mt-5" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <Link to={'/reports'} className="nav-link" href="#">
+                                <span data-feather="bar-chart-2" className="align-text-bottom"></span>
+                                    Reports
+                            </Link>
+                        </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                        <Link to={'/reports'} className="nav-link" href="#">
+                            <span data-feather="bar-chart-2" className="align-text-bottom"></span>
+                                Dashboard
+                        </Link>
+                        <Link to={'/reports/donationSlips'} className="nav-link mt-2" href="#">
+                            <span data-feather="bar-chart-2" className="align-text-bottom"></span>
+                                Donation Slips
+                        </Link>
+                        <Link to={'/reports/titheReports'} className="nav-link mt-2" href="#">
+                            <span data-feather="bar-chart-2" className="align-text-bottom"></span>
+                                Tithe Reports
+                        </Link>
+                        </div>
+                        </div>
+                    </div>
+                    
+                </div>
+
             </div>
-            </nav>
+        </nav>
     </>
   )
 }

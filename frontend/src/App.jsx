@@ -17,6 +17,11 @@ const PDFView = React.lazy( () => import("./pages/PDFView"))
 const Login = React.lazy( () => import("./pages/Login"))
 const MembersList = React.lazy(()=>import("./pages/MembersList"))
 import Loading from './components/Loading';
+import Reports from "./pages/reports/Reports";
+import PDFDownload from "./pages/PDFDownload";
+import DonationSlip from "./pages/reports/DonationSlip";
+import ReportsDashboard from "./pages/reports/ReportsDashboard";
+import TitheReports from "./pages/reports/TitheReports";
 
 function App() {
   const router = createBrowserRouter([
@@ -54,12 +59,34 @@ function App() {
           element: <Suspense fallback={<Loading/>}><NewTithe/></Suspense>
         },
 
-
+      ]
+    },
+    {
+      path: "reports",
+      element: <Suspense fallback={<Loading/>}><Reports/></Suspense>,
+      errorElement: <ErrorPage/>,
+      children: [
+        {
+          path: "/reports",
+          element: <Suspense fallback={<Loading/>}><ReportsDashboard/></Suspense>
+        },
+        {
+          path: "donationSlips",
+          element: <Suspense fallback={<Loading/>}><DonationSlip/></Suspense>
+        },
+        {
+          path: "titheReports",
+          element: <Suspense fallback={<Loading/>}><TitheReports/></Suspense>
+        }
       ]
     },
     {
       path:"pdfView",
       element: <Suspense fallback={<Loading/>}><PDFView/></Suspense>
+    },
+    {
+      path:"pdfDownload",
+      element: <Suspense fallback={<Loading/>}><PDFDownload/></Suspense>
     },
     {
       path: "login",

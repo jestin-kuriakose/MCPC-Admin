@@ -13,7 +13,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient} contextSharing={true}>
       <App />
-      <ReactQueryDevtools/>
     </QueryClientProvider>
   </React.StrictMode>,
 )

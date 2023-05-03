@@ -33,7 +33,7 @@ const Login = () => {
             <h1 className='text-center mb-5'>Sign in</h1>
             <input type="email" className="form-control mb-2" placeholder='Email Address' value={email} onChange={(e)=> setEmail(e.target.value)}/>
             <input type="password" className="form-control mb-2" placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)}/>
-            <button disabled={!email || !password || mutation.isLoading} type="submit" className='btn btn-primary w-100'>Login</button>
+            <button disabled={!email || !password || mutation.isLoading} type="submit" className='btn btn-primary w-100'>{mutation.isLoading ? "Loading" : "Login"}</button>
 
             {mutation.isError &&
               <div class="alert alert-danger d-flex align-items-center mt-2" role="alert">

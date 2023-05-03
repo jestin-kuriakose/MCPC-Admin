@@ -7,8 +7,6 @@ const sequelize = new Sequelize('peheabmy_mcpc-admin', 'peheabmy_fsd_admin', 'Ki
   });
 
 
-
-
 // Test the database connection
 sequelize
 .authenticate()

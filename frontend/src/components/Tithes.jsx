@@ -5,6 +5,7 @@ import baseURL from "../http.js"
 import { useDataFetch } from '../hooks/use-datafetch.js'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMembers, fetchTithes } from '../apiCalls.js'
+import { CSVLink } from 'react-csv'
 
 const Tithes = ({count}) => {
 
@@ -47,6 +48,7 @@ const Tithes = ({count}) => {
   return (
     <>
         <div className="table-responsive">
+        { tithes && <CSVLink data={tithes} className='btn btn-primary my-3 btn-sm' filename={"tithes.csv"} target="_blank">Export to Excel</CSVLink>}
             <table className="table table-striped table-sm">
             <thead>
                 <tr>
