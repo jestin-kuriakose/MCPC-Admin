@@ -73,10 +73,10 @@ const DonationSlip = () => {
                             <td key={3}>{tithe.member.lastName}</td>
                             <td key={4}>${tithe.totalAmount}</td>
                             <td key={5}>
-                                <Link target="_blank" rel="noopener noreferrer" className='btn btn-primary btn-sm' 
+                                <Link className='btn btn-primary btn-sm' 
                                         to={`/pdfView/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe.member.address1}&address2=${tithe.member.address2}&city=${tithe.member.city}&province=${tithe.member.province}&country=${tithe.member.country}&postalCode=${tithe.member.postalCode}&titheAmount=${tithe?.totalAmount}`}>
                                             View</Link>       
-                                <Link target="_blank" rel="noopener noreferrer" className='btn btn-primary btn-sm ms-2' 
+                                <Link className='btn btn-primary btn-sm ms-2' 
                                         to={`/pdfDownload/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe.member.address1}&address2=${tithe.member.address2}&city=${tithe.member.city}&province=${tithe.member.province}&country=${tithe.member.country}&postalCode=${tithe.member.postalCode}&titheAmount=${tithe?.totalAmount}`}>
                                             Download</Link>
                             </td>
