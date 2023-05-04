@@ -1,15 +1,12 @@
 import express from "express"
-import bodyParser from "body-parser";
 import cors from "cors"
 import memberRoute from "./routes/members.js"
 import titheRoute from "./routes/tithes.js"
 import userRoute from "./routes/users.js"
-import User from "./models/User.js"
-import results from "./config/ipAddress.js";
 
 const app = express()
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors())
