@@ -1,30 +1,52 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { loginReq } from '../apiCalls'
+import axios from '../api/axios'
+import AuthContext from '../context/AuthProvider'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const Login = () => {
+  const { setAuth } = useContext(AuthContext)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/'
 
-  const queryClient = useQueryClient()
-
-  const mutation = useMutation({
-    mutationFn: loginReq,
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries(["user", "login"])
-    },
-    onError: (error, variables, context) => {
-      console.log(error)
-    },
-    onSettled: (data, error, variables, context) => {
-      
-    },
-  })
+  const { auth } = useContext(AuthContext)
+  auth?.email && navigate(from, { replace: true });
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
+    setIsSuccess(false)
+    setError("")
 
-    mutation.mutate({email, password})
+    try {
+      const response = await axios.post('/login', {email, password}, 
+      {
+        headers: { 'Content-Type' : 'application/json' },
+        withCredentials: true
+      }
+      )
+      console.log(response?.data)
+      setIsLoading(false)
+      setIsSuccess(true)
+      const role = response?.data.role
+      const accessToken = response?.data.accessToken
+      setAuth({ email, password, role, accessToken })
+      setEmail('')
+      setPassword('')
+      navigate(from, { replace: true })
+    } catch(err) {
+      console.log(err)
+      setIsLoading(false)
+      setError(err.message)
+      
+    }
   }
 
   return (
@@ -33,17 +55,20 @@ const Login = () => {
             <h1 className='text-center mb-5'>Sign in</h1>
             <input type="email" className="form-control mb-2" placeholder='Email Address' value={email} onChange={(e)=> setEmail(e.target.value)}/>
             <input type="password" className="form-control mb-2" placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)}/>
-            <button disabled={!email || !password || mutation.isLoading} type="submit" className='btn btn-primary w-100'>{mutation.isLoading ? "Loading" : "Login"}</button>
+            <button disabled={!email || !password || isLoading} type="submit" className='btn btn-primary w-100'>{isLoading ? "Loading" : "Login"}</button>
 
-            {mutation.isError &&
+            {error &&
               <div class="alert alert-danger d-flex align-items-center mt-2" role="alert">
-                  {mutation.error.message}
+                  {error}
               </div>}
 
-            {mutation.isSuccess && 
-            <div class="alert alert-success d-flex align-items-center mt-2" role="alert">
+            
+
+            {isSuccess &&
+              <div class="alert alert-success d-flex align-items-center mt-2" role="alert">
                 You are signed in
-            </div>}
+              </div>}
+
         </form>
     </main>
   )

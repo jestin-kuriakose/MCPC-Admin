@@ -7,7 +7,7 @@ import sequelize from "../config/db.js"
 
 
 // Get all Tithe info
-router.get('/', (req, res) => {
+router.get('/titheData', (req, res) => {
     const count = req.query.count === undefined ? 1000 : Number(req.query.count)
     const prevYear = req.query.year === undefined ? 1900 : req.query.year - 1;
     const nextYear = req.query.year === undefined ? new Date().getFullYear() + 1 : req.query.year + 1;
@@ -31,25 +31,57 @@ router.get('/', (req, res) => {
     })
 })
 
+// Get single Tithe info
+router.get('/titheData/:id', (req, res) => {
+
+    Tithe.findOne( { where: { id: req.params.id }} )
+    .then((tithe) => {
+        return res.status(200).json(tithe)
+    }) 
+    .catch((err) => {
+        console.log("Error", err)
+        res.status(500).json({error: "Unable to retrieve Tithe Info"})
+    })
+})
+
 // Get all Tithe info with member Data , 
 router.get('/titheWithMemberData', (req, res) => {
-
     const count = req.query.count === undefined ? 1000 : Number(req.query.count)
     const prevYear = req.query.year === undefined ? 1900 : req.query.year - 1;
     const nextYear = req.query.year === undefined ? new Date().getFullYear() + 1 : req.query.year + 1;
-
+console.log({count, prevYear, nextYear})
     Tithe.findAll({
         limit: count,
         where: { 
             date: { [Op.lt]: `${nextYear}-01-01`, [Op.gt]: `${prevYear}-12-31`} 
         },
         include: [{
-            model: Member
+            model: Member,
+            attributes: ['firstName', 'middleName', 'lastName', 'address1', 'address2', 'city', 'province', 'postalCode', 'country', 'email1', 'phone1']
         }]
     })
     .then((tithe) => {
-        const d = tithe[0].date
-        const date = new Date(d)
+        console.log(tithe)
+        res.status(200).json(tithe)
+    }) 
+    .catch((err) => {
+        console.log("Error", err)
+        res.status(500).json({error: "Unable to retrieve Tithe Info"})
+    })
+})
+
+// Get Single Tithe info with member Data 
+router.get('/titheWithMemberData/:id', (req, res) => {
+    Tithe.findOne({
+        where: { 
+            id: req.params.id
+        },
+        include: [{
+            model: Member,
+            attributes: ['firstName', 'middleName', 'lastName', 'address1', 'address2', 'city', 'province', 'postalCode', 'country', 'email1', 'phone1']
+        }]
+    })
+    .then((tithe) => {
         res.status(200).json(tithe)
     }) 
     .catch((err) => {

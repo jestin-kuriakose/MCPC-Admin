@@ -3,14 +3,30 @@ import Member from "../models/Member.js"
 const router = express.Router()
 
 // Get all Mmembers
-router.get('/', (req, res) => {
-    Member.findAll()
+router.get('/memberData', (req, res) => {
+    const count = req.query.count
+    Member.findAll({
+        limit: count,
+    })
     .then((member) => {
         res.status(200).json(member)
     })
     .catch((err) => {
         console.log("Error retrieving Members", err)
         res.status(500).json({error: "Error retrieving Members"})
+    })
+})
+
+// Get single Tithe info
+router.get('/memberData/:id', (req, res) => {
+
+    Member.findOne( { where: { id: req.params.id }} )
+    .then((member) => {
+        return res.status(200).json(member)
+    }) 
+    .catch((err) => {
+        console.log("Error", err)
+        res.status(500).json({error: "Unable to retrieve Member Info"})
     })
 })
 

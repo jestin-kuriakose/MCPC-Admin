@@ -1,39 +1,49 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
-import baseURL from "../http.js"
-import { useDataFetch } from '../hooks/use-datafetch.js'
-import { useQuery } from '@tanstack/react-query'
-import { fetchMembers, fetchTithes } from '../apiCalls.js'
+import axios from '../api/axios'
 import { CSVLink } from 'react-csv'
 
 const Tithes = ({count}) => {
 
-    const [members, setMembers] = useState([])
     const [tithes, setTithes] = useState([])
-
-    const memberQuery = useQuery({
-        queryKey: ["members"],
-        queryFn: fetchMembers
-    })
-    const titheQuery = useQuery({
-        queryKey: ["tithes"],
-        queryFn: fetchTithes
-    })
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState()
 
     useEffect(()=> {
-        setMembers(memberQuery.data?.data)
-        setTithes(titheQuery.data?.data)
-    }, [memberQuery.data, titheQuery.data])
+        let isMounted = true;
+        let updatedData = []
+        const controller = new AbortController()
 
-    const findMember = (tithe, query) => {
-        const member = members?.find(member => member.id == tithe.memberId)
-        if (query == "firstName"){
-            return member?.firstName
-        } else {
-            return member?.lastName
-        }  
-    }
+        const getTitheData = async () => {
+            try {
+                const response = await axios.get(`/tithe/titheWithMemberData?count=${count}`, {
+                    signal: controller.signal
+                })
+
+                response?.data.map((tithe) => {
+                    const titheData = tithe
+                    const memberData = tithe.member
+                    delete titheData.member
+                    const newData = Object.assign(titheData, memberData)
+                    updatedData.push(newData)
+                })
+
+                isMounted && setTithes(updatedData)
+            } catch(err) {
+                console.log(err)
+            }
+        }
+
+        getTitheData()
+
+        return () => {
+            isMounted = false;
+            controller.abort()
+        }
+
+    }, [])
+
+    console.log(tithes)
 
     const TableSkeleton = () => (
         <tr key={Math.random()*10}>
@@ -60,13 +70,13 @@ const Tithes = ({count}) => {
                 </tr>
             </thead>
             <tbody>
-                {!titheQuery.isLoading ? tithes?.map((tithe, index) => (
+                {!isLoading ? tithes?.map((tithe, index) => (
                     index < count &&
                     <tr key={tithe.id}>
                         <td key={1}>{tithe.id}</td>
                         <td key={2}>{tithe.date}</td>
-                        <td key={3}>{findMember(tithe, "firstName")}</td>
-                        <td key={4}>{findMember(tithe, "lastName")}</td>
+                        <td key={3}>{tithe.firstName}</td>
+                        <td key={4}>{tithe.lastName}</td>
                         <td key={5}>$ {tithe.amount}</td>
                         <td key={6}><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
                     </tr>

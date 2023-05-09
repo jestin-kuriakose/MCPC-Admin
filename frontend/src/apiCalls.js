@@ -2,7 +2,12 @@ import axios from "axios"
 import baseURL from "./http"
 
 export const fetchMembers = async () => {
-    const { data } = await axios.get(baseURL + '/member')
+    const accessToken = localStorage.getItem("accessToken")
+    const { data } = await axios.get(baseURL + '/member', {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
     return { data }
 }
 
@@ -12,7 +17,7 @@ export const fetchTithes = async () => {
 }
 
 export const loginReq = async (loginInfo) => {
-    return await axios.post(baseURL + '/user/login', loginInfo)
+    return await axios.post(baseURL + '/login', loginInfo)
 }
 
 export const fetchTotalTithe = async(endpoint) => {

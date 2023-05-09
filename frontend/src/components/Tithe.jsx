@@ -16,30 +16,37 @@ const Tithe = () => {
     const navigate = useNavigate()
 
     useEffect(()=> {
-        const fetchTitheData = async () => {
-            try {
-                const res = await axios.get(baseURL + "/tithe")
-                const tithes = res.data
-                const data = tithes.filter((tithe)=>titheId == tithe.id)
-                setTitheData(...data)
-            } catch(err) {
+        let endpoints = [
+            `${baseURL}/tithe/titheData/${titheId}`,
+            `${baseURL}/member`
+        ]
+        let isMounted = true;
+        const controller = new AbortController()
+
+        const getTitheData = async () => {
+
+            axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
+            .then(
+                axios.spread((titheData, memberData) => {
+                    console.log(titheData, memberData)
+                    setTitheData(titheData.data)
+                    setMembers(memberData.data)
+                })
+            )
+            .catch((err) => {
                 console.log(err)
-            }
+            })
+
         }
-        fetchTitheData()
+                
+        getTitheData()
+
+        return () => {
+            isMounted = false;
+            controller.abort()
+        }
+
     }, [])
-        
-    useEffect(() => {
-        const fetchMemberData = async() => {
-            try {
-                const res = await axios.get(baseURL + "/member")
-                setMembers(res.data)
-            } catch(err) {
-                console.log(err)
-            }
-        }
-        fetchMemberData()
-    },[])
 
     const handleChange = (e) => {
         setEditedTitheData((prev) => ({...prev, [e.target.name] : e.target.value}))
@@ -63,12 +70,12 @@ const Tithe = () => {
         {isLoading ? <Loading/> : 
         <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
-            <h4 className="my-3">Member Details</h4>
+            <h4 className="my-3">Tithe Details<p className='lead fs-6'>Tithe ID #{titheData.id}</p></h4>
                 <form className="needs-validation" noValidate>
                 <div className="row g-3">
                     <div className="col-sm-4">
                         <label htmlFor="firstName" className="form-label fw-bold">Member</label>
-                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : titheData?.memberId} onChange={handleChange}>
+                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : members?.memberId} onChange={handleChange}>
                                 {members?.map((member) => (
                                     <option key={member?.id} id={member?.id} value={member?.id}>{member?.firstName + " " + member?.lastName}</option>
                                 ))}

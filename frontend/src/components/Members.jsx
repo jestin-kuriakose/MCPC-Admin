@@ -2,19 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDataFetch } from '../hooks/use-datafetch.js';
 import { CSVLink } from "react-csv"
+import axios from '../api/axios.js';
+import useAxiosPrivate from '../hooks/useAxiosPrivate.js';
 
 const Members = ({count}) => {
     const [members, setMembers] = useState([])
-
-    const { data, isLoading, isError, error } = useDataFetch('/member')
-
-    if(isError) {
-        console.log(error.message)
-    }
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState()
+    const axiosPrivate = useAxiosPrivate()
 
     useEffect(()=> {
-        setMembers(data?.data)
-    },[data])
+        let isMounted = true;
+        const controller = new AbortController()
+
+        const getMemberData = async () => {
+            try {
+                const response = await axiosPrivate.get('/member/memberData', {
+                    signal: controller.signal
+                })
+                console.log(response.data)
+                isMounted && setMembers(response.data)
+            } catch(err) {
+                console.log(err)
+            }
+        }
+
+        getMemberData()
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        }
+        
+    },[])
 
     const TableSkeleton = () => (
         <tr key={Math.random()*10}>
@@ -49,7 +69,7 @@ const Members = ({count}) => {
                         <td key={2}>{member.firstName}</td>
                         <td key={3}>{member.lastName}</td>
                         <td key={4}>{member.city}</td>
-                        <td key={5}>{member.active ? "Yes" : "No"}</td>
+                        <td key={5}>{member.active}</td>
                         <td key={6}><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-sm-1' to={`/member/${member.id}`}>Delete</button></td>
                     </tr>
                 ))

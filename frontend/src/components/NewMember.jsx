@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from "axios"
+import axios from '../api/axios'
 import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
@@ -12,7 +12,12 @@ const NewMember = () => {
     const [memberInfo, setMemberInfo] = useState({
         active: true,
         province: "ON",
-        country: "Canada"
+        country: "Canada",
+        spouse: 0,
+        child1: 0,
+        child2: 0,
+        child3: 0,
+        child4: 0,
     })
     const navigate = useNavigate()
 
@@ -20,7 +25,7 @@ const NewMember = () => {
         setError("")
         setIsLoading(true)
         try {
-            const res = await axios.post(baseURL + "/member", memberInfo)
+            const res = await axios.post("/member", memberInfo)
             setIsLoading(false)
             navigate('/members')
         } catch(err) {
@@ -31,16 +36,26 @@ const NewMember = () => {
     }
 
     useEffect(() => {
+        let isMounted = true;
+        const controller = new AbortController()
         const getMembers = async () => {
             try {
-                const res = await axios.get(baseURL + "/member")
-                setMembers(res.data)
+                const res = await axios.get("/member/memberData", {
+                    signal: controller.signal
+                })
+                isMounted && setMembers(res.data)
             } catch(err) {
                 console.log(err)
             }
 
         }
         getMembers()
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        }
+
     }, [])
 
   return (
@@ -102,10 +117,10 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="active" className="form-label fw-bold">Active ?</label>
-                        <select name="active" id="active" className='form-select' defaultValue={true} required onChange={(e)=>setMemberInfo((prev)=>({...prev, active: e.target.value == 'true' ? true : false}))}>
+                        <select name="active" id="active" className='form-select' defaultValue={true} required onChange={(e)=>setMemberInfo((prev)=>({...prev, active: e.target.value ? true : false}))}>
                             <option value="">Choose..</option>
-                            <option value={true}>Yes</option>
-                            <option value={false}>No</option>
+                            <option value={'yes'}>Yes</option>
+                            <option value={'no'}>No</option>
                         </select>
                         <div className="invalid-feedback">
                             Valid Member is required.
@@ -218,8 +233,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="spouse" className="form-label fw-bold">Spouse</label>
-                        <select className="form-select" id="spouse" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, spouse: e.target.value}))}>
-                            <option value={"NA"} disabled>Not Applicable</option>
+                        <select className="form-select" id="spouse" required defaultValue={0} onChange={(e)=>setMemberInfo((prev)=>({...prev, spouse: e.target.value}))}>
+                            <option value={0} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -233,8 +248,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child1" className="form-label fw-bold">Child 1</label>
-                        <select className="form-select" id="child1" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child1: e.target.value}))}>
-                        <option  value={"NA"} disabled>Not Applicable</option>
+                        <select className="form-select" id="child1" defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child1: e.target.value}))}>
+                        <option  value={0} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -243,8 +258,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child2" className="form-label fw-bold">Child 2</label>
-                        <select className="form-select" id="child2" defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child2: e.target.value}))}>
-                        <option value={"NA"} disabled>Not Applicable</option>
+                        <select className="form-select" id="child2" defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child2: e.target.value}))}>
+                        <option value={0} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -253,8 +268,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child3" className="form-label fw-bold">Child 3</label>
-                        <select className="form-select" id="child3"  defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child3: e.target.value}))}>
-                        <option value={"NA"} disabled>Not Applicable</option>
+                        <select className="form-select" id="child3"  defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child3: e.target.value}))}>
+                        <option value={0} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}
@@ -263,8 +278,8 @@ const NewMember = () => {
 
                     <div className="col-sm-3">
                         <label for="child4" className="form-label fw-bold">Child 4</label>
-                        <select className="form-select" id="child4"  defaultValue={"NA"} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child4: e.target.value}))}>
-                        <option value={"NA"} disabled>Not Applicable</option>
+                        <select className="form-select" id="child4"  defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child4: e.target.value}))}>
+                        <option value={0} disabled>Not Applicable</option>
                             {members?.map((member) => (
                                 <option value={member.id}>{member.firstName + " " + member.lastName} </option>
                             ))}

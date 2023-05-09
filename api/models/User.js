@@ -9,15 +9,21 @@ firstName: {
 lastName: {
     type: DataTypes.STRING,
 },
+username: {
+    type: DataTypes.STRING
+},
 email: {
     type: DataTypes.STRING
 },
 password: {
     type: DataTypes.STRING
 },
-clearanceLevel: {
-    type: DataTypes.INTEGER
-}
+roles: {
+    type: DataTypes.NUMBER
+},
+refreshToken: {
+    type: DataTypes.STRING
+},
 });
 
 export default User;

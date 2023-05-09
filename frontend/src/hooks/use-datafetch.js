@@ -2,12 +2,17 @@ import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import baseURL from "../http"
 
-export const useDataFetch = () => {
-
+export const useDataFetch = async () => {
+    const accessToken = await localStorage.getItem("accessToken")
+    console.log(accessToken)
     return useQuery({
         queryKey: ['member'],
         queryFn: async() => {
-            const { data } = await axios.get(baseURL + '/member')
+            const { data } = await axios.get(baseURL + '/member', {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            })
             return { data }
         }
     })

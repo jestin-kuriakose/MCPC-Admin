@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import axios from '../api/axios'
 import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
@@ -17,22 +17,34 @@ const SingleMember = () => {
     const navigate = useNavigate()
 
     useEffect(()=> {
+        let isMounted = true
+        const controller = new AbortController()
+
         const fetchMemberData = async() => {
-            const res = await axios.get(baseURL + "/member")
-            const data = res.data
-            const filteredData = data?.filter(member => member.id == memberId)
-            setMembers(res.data)
-            setMemberData(...filteredData)
+            try {
+                const res = await axios.get(`/member/memberData`, {
+                    signal: controller.signal
+                })
+                const filteredData = res.data.filter(d=>d.id == memberId)
+                isMounted && setMembers(res.data)
+                isMounted && setMemberData(...filteredData)
+            } catch(err) {
+                console.log(err)
+            }
         }
         fetchMemberData()
+
+        return () => {
+            isMounted = false;
+            controller.abort()
+        }
     }, [])
 
     const handleSave = async () => {
         setIsLoading(true)
         setError("")
         try {
-            const res = await axios.patch(`${baseURL}/member/${memberId}`, editedMemberData)
-            console.log(res.data)
+            const res = await axios.patch(`/member/${memberId}`, editedMemberData)
             setIsLoading(false)
             navigate('/members')
         } catch(err) {
@@ -44,6 +56,7 @@ const SingleMember = () => {
 
     const handleChange = (e) => {
         setEditedMemberData((prev)=> ({...prev, [e.target.name]: e.target.value}))
+        console.log(editedMemberData)
     }
 
   return (
@@ -77,7 +90,7 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="sex" className="form-label fw-bold">Sex</label>
-                        <select name="sex" id="sex" defaultValue={memberData?.sex} className="form-select" onChange={handleChange}>
+                        <select name="sex" id="sex" value={editedMemberData?.sex ? editedMemberData?.sex : memberData?.sex} className="form-select" onChange={handleChange}>
                             <option value="">Choose..</option>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
@@ -96,7 +109,7 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="active" className="form-label fw-bold">Active ?</label>
-                        <select name="active" id="active" className='form-select' defaultValue={memberData?.active ? "yes" : "no"} onChange={handleChange}>
+                        <select name="active" id="active" className='form-select' value={editedMemberData?.active ? editedMemberData?.active : memberData?.active} onChange={handleChange}>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
                         </select>
@@ -125,7 +138,7 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="province" className="form-label fw-bold">Province</label>
-                        <select name="province" id="province" className='form-select' defaultValue={memberData?.province} onChange={handleChange} required>
+                        <select name="province" id="province" className='form-select' value={editedMemberData?.province ? editedMemberData?.province : memberData?.province} onChange={handleChange} required>
                             <option value="" disabled>Choose..</option>
                             <option value="AB">Alberta</option>
                             <option value="BC">British Columbia</option>
