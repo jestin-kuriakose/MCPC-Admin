@@ -7,13 +7,63 @@ import axios from 'axios'
 import baseURL from '../http'
 import { fetchTotalTithe } from '../apiCalls'
 
+/////////////////////////////////////////////////
+import useAuth from "../hooks/useAuth.js"
+import useRefreshToken from '../hooks/useRefreshToken.js';
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
+////////////////////////////////////////////////
+
 const Dashboard = () => {
   const [totalTithe, setTotalTithe] = useState(0)
+
+/////////////////////////////////////////////////
+  const refresh = useRefreshToken();
+    const { auth } = useAuth()
+
+    const axiosPrivate = axios.create({
+        baseURL: BASE_URL,
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true
+    });
+
+    useEffect(() => {
+        const requestIntercept = axiosPrivate.interceptors.request.use(
+            config => {
+                if (!config.headers['Authorization']) {
+                    config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
+                }
+                return config;
+            }, (error) => Promise.reject(error)
+        );
+
+        const responseIntercept = axiosPrivate.interceptors.response.use(
+            response => {
+              return response
+            },
+            async (error) => {
+                const prevRequest = error?.config;
+                if (error?.response?.status === 403 && !prevRequest?.sent) {
+                    prevRequest.sent = true;
+                    const newAccessToken = await refresh();
+                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                    return axiosPrivate(prevRequest);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axiosPrivate.interceptors.request.eject(requestIntercept);
+            axiosPrivate.interceptors.response.eject(responseIntercept);
+        }
+    }, [auth, refresh])
+
+    ///////////////////////////////////////////////////////////////////////////////
 
   useEffect(()=> {
     const fetchData = async() => {
       try {
-        const res = await fetchTotalTithe('/tithe/reports/totalAmount')
+        const res = await axiosPrivate.get('/tithe/reports/totalAmount')
         setTotalTithe(res.data.amount)
       } catch(err) {
         console.log(err)

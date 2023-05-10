@@ -5,6 +5,12 @@ import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
 
+/////////////////////////////////////////////////
+import useAuth from "../hooks/useAuth.js"
+import useRefreshToken from '../hooks/useRefreshToken.js';
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
+////////////////////////////////////////////////
+
 const SingleMember = () => {
     const location = useLocation()
     const memberId = location.pathname.split('/')[2]
@@ -16,13 +22,55 @@ const SingleMember = () => {
 
     const navigate = useNavigate()
 
+        /////////////////////////////////////////////////
+  const refresh = useRefreshToken();
+  const { auth } = useAuth()
+
+  const axiosPrivate = axios.create({
+      baseURL: BASE_URL,
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true
+  });
+
+  useEffect(() => {
+      const requestIntercept = axiosPrivate.interceptors.request.use(
+          config => {
+              if (!config.headers['Authorization']) {
+                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
+              }
+              return config;
+          }, (error) => Promise.reject(error)
+      );
+
+      const responseIntercept = axiosPrivate.interceptors.response.use(
+          response => response,
+          async (error) => {
+              const prevRequest = error?.config;
+              if (error?.response?.status === 403 && !prevRequest?.sent) {
+                  prevRequest.sent = true;
+                  const newAccessToken = await refresh();
+                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                  return axiosPrivate(prevRequest);
+              }
+              return Promise.reject(error);
+          }
+      );
+
+      return () => {
+          axiosPrivate.interceptors.request.eject(requestIntercept);
+          axiosPrivate.interceptors.response.eject(responseIntercept);
+      }
+  }, [auth, refresh])
+
+  ///////////////////////////////////////////////////////////////////////////////
+
     useEffect(()=> {
         let isMounted = true
         const controller = new AbortController()
 
         const fetchMemberData = async() => {
             try {
-                const res = await axios.get(`/member/memberData`, {
+                const res = await axiosPrivate.get(`/member/memberData`, {
                     signal: controller.signal
                 })
                 const filteredData = res.data.filter(d=>d.id == memberId)
@@ -44,7 +92,7 @@ const SingleMember = () => {
         setIsLoading(true)
         setError("")
         try {
-            const res = await axios.patch(`/member/${memberId}`, editedMemberData)
+            const res = await axiosPrivate.patch(`/member/${memberId}`, editedMemberData)
             setIsLoading(false)
             navigate('/members')
         } catch(err) {
@@ -56,7 +104,6 @@ const SingleMember = () => {
 
     const handleChange = (e) => {
         setEditedMemberData((prev)=> ({...prev, [e.target.name]: e.target.value}))
-        console.log(editedMemberData)
     }
 
   return (

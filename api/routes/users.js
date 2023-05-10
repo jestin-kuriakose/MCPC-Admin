@@ -7,7 +7,6 @@ router.get('/', (req, res) => {
     User.findAll()
     .then((user)=> {
         console.log(`Retrieved ${user.length} users.`);
-        res.json(user)
     })
     .catch((err) => {
         console.log("unable to retrieve users: ", err)

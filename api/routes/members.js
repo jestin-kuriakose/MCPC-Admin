@@ -34,7 +34,6 @@ router.get('/memberData/:id', (req, res) => {
 router.post('/', (req, res) => {
     Member.create(req.body)
     .then((member) => {
-        console.log(member)
         res.status(200).json(member)
     })
     .catch((err) => {
@@ -52,7 +51,6 @@ router.patch('/:id', async(req, res) => {
                 id: req.params.id
             }
         })
-        console.log(response)
         res.status(200).json({message: "No of updated rows: " + response})
         
     } catch(err) {

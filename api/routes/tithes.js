@@ -49,7 +49,6 @@ router.get('/titheWithMemberData', (req, res) => {
     const count = req.query.count === undefined ? 1000 : Number(req.query.count)
     const prevYear = req.query.year === undefined ? 1900 : req.query.year - 1;
     const nextYear = req.query.year === undefined ? new Date().getFullYear() + 1 : req.query.year + 1;
-console.log({count, prevYear, nextYear})
     Tithe.findAll({
         limit: count,
         where: { 
@@ -61,7 +60,6 @@ console.log({count, prevYear, nextYear})
         }]
     })
     .then((tithe) => {
-        console.log(tithe)
         res.status(200).json(tithe)
     }) 
     .catch((err) => {
@@ -92,7 +90,6 @@ router.get('/titheWithMemberData/:id', (req, res) => {
 
 //Create a new Tithe Info
 router.post('/', (req,res) => {
-    console.log(req.body)
     Tithe.create(req.body)
     .then((tithe) => {
         res.status(200).json(tithe)
@@ -111,7 +108,6 @@ router.patch('/:id', (req, res) => {
         }
     })
     .then((tithe) => {
-        console.log(tithe)
         res.status(200).json({message: "No of updated rows: " + tithe})
     })
     .catch((err) => {

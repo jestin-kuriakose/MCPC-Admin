@@ -9,7 +9,7 @@ const verifyJWT = (req, res, next) => {
         token,
         process.env.ACCESS_TOKEN_SECRET,
         (err, decoded) => {
-            if(err) return res.status(401).json({'message' : 'Not Authorized'})
+            if(err) return res.status(403).json({'message' : 'Not Authorized'})
             req.email = decoded.UserInfo.email
             req.role = decoded.UserInfo.email
             next()

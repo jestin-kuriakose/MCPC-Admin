@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthProvider'
+import useAuth from '../hooks/useAuth'
 
 const Header = () => {
-    const { auth } = useContext(AuthContext)
+    const { auth } = useAuth()
   return (
     <>
         <header className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
@@ -14,7 +15,7 @@ const Header = () => {
             <input className="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search"/>
             <div className="navbar-nav">
                 <div className="nav-item text-nowrap">
-                <a className="nav-link px-3" type='button' data-bs-toggle="modal" data-bs-target="#signOutModal">{auth?.email ? auth?.email : "Sign Out"}</a>
+                <a className="nav-link px-3" type='button' data-bs-toggle="modal" data-bs-target="#signOutModal">{auth?.email ? "Jestin" : "Sign Out"}</a>
                 </div>
             </div>
         </header>

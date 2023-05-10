@@ -5,6 +5,12 @@ import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
 
+/////////////////////////////////////////////////
+import useAuth from "../hooks/useAuth.js"
+import useRefreshToken from '../hooks/useRefreshToken.js';
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
+////////////////////////////////////////////////
+
 const Tithe = () => {
     const [titheData, setTitheData] = useState({})
     const [editedTitheData, setEditedTitheData] = useState({})
@@ -14,6 +20,48 @@ const Tithe = () => {
     const location = useLocation()
     const titheId = location.pathname.split('/')[2]
     const navigate = useNavigate()
+
+/////////////////////////////////////////////////
+  const refresh = useRefreshToken();
+  const { auth } = useAuth()
+
+  const axiosPrivate = axios.create({
+      baseURL: BASE_URL,
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true
+  });
+
+  useEffect(() => {
+      const requestIntercept = axiosPrivate.interceptors.request.use(
+          config => {
+              if (!config.headers['Authorization']) {
+                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
+              }
+              return config;
+          }, (error) => Promise.reject(error)
+      );
+
+      const responseIntercept = axiosPrivate.interceptors.response.use(
+          response => response,
+          async (error) => {
+              const prevRequest = error?.config;
+              if (error?.response?.status === 403 && !prevRequest?.sent) {
+                  prevRequest.sent = true;
+                  const newAccessToken = await refresh();
+                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                  return axiosPrivate(prevRequest);
+              }
+              return Promise.reject(error);
+          }
+      );
+
+      return () => {
+          axiosPrivate.interceptors.request.eject(requestIntercept);
+          axiosPrivate.interceptors.response.eject(responseIntercept);
+      }
+  }, [auth, refresh])
+
+  ///////////////////////////////////////////////////////////////////////////////
 
     useEffect(()=> {
         let endpoints = [
@@ -25,10 +73,9 @@ const Tithe = () => {
 
         const getTitheData = async () => {
 
-            axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
+            axiosPrivate.all(endpoints.map((endpoint) => axiosPrivate.get(endpoint)))
             .then(
-                axios.spread((titheData, memberData) => {
-                    console.log(titheData, memberData)
+                axiosPrivate.spread((titheData, memberData) => {
                     setTitheData(titheData.data)
                     setMembers(memberData.data)
                 })
@@ -55,8 +102,7 @@ const Tithe = () => {
     const handleSave = async () => {
         setIsLoading(true)
         try{
-            const res = await axios.patch(`${baseURL}/tithe/${titheId}`, editedTitheData)
-            console.log(res.data)
+            const res = await axiosPrivate.patch(`/tithe/${titheId}`, editedTitheData)
             setIsLoading(false)
             navigate('/tithes')
         } catch(err) {

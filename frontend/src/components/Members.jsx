@@ -3,13 +3,61 @@ import { Link } from 'react-router-dom'
 import { useDataFetch } from '../hooks/use-datafetch.js';
 import { CSVLink } from "react-csv"
 import axios from '../api/axios.js';
-import useAxiosPrivate from '../hooks/useAxiosPrivate.js';
+import useAxiosPrivate from '../hooks/useAxiosPrivate';
+
+///////////////////////////////////////////////////////
+import useAuth from "../hooks/useAuth.js"
+import useRefreshToken from '../hooks/useRefreshToken.js';
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
+//////////////////////////////////////////////////////
 
 const Members = ({count}) => {
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState()
-    const axiosPrivate = useAxiosPrivate()
+    // const axiosPrivate = useAxiosPrivate()
+
+///////////////////////////////////////////////////////////////////////
+    const refresh = useRefreshToken();
+    const { auth } = useAuth()
+
+    const axiosPrivate = axios.create({
+        baseURL: BASE_URL,
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true
+    });
+
+    useEffect(() => {
+        const requestIntercept = axiosPrivate.interceptors.request.use(
+            config => {
+                if (!config.headers['Authorization']) {
+                    config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
+                }
+                return config;
+            }, (error) => Promise.reject(error)
+        );
+
+        const responseIntercept = axiosPrivate.interceptors.response.use(
+            response => response,
+            async (error) => {
+                const prevRequest = error?.config;
+                if (error?.response?.status === 403 && !prevRequest?.sent) {
+                    prevRequest.sent = true;
+                    const newAccessToken = await refresh();
+                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                    return axiosPrivate(prevRequest);
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axiosPrivate.interceptors.request.eject(requestIntercept);
+            axiosPrivate.interceptors.response.eject(responseIntercept);
+        }
+    }, [auth, refresh])
+///////////////////////////////////////////////////////////
+
 
     useEffect(()=> {
         let isMounted = true;
@@ -20,7 +68,6 @@ const Members = ({count}) => {
                 const response = await axiosPrivate.get('/member/memberData', {
                     signal: controller.signal
                 })
-                console.log(response.data)
                 isMounted && setMembers(response.data)
             } catch(err) {
                 console.log(err)

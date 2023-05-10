@@ -1,12 +1,10 @@
 import React, { useContext, useRef, useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { loginReq } from '../apiCalls'
 import axios from '../api/axios'
 import AuthContext from '../context/AuthProvider'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 const Login = () => {
-  const { setAuth } = useContext(AuthContext)
+  const { setAuth, setPersist } = useContext(AuthContext)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -15,9 +13,6 @@ const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/'
-
-  const { auth } = useContext(AuthContext)
-  auth?.email && navigate(from, { replace: true });
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -32,12 +27,13 @@ const Login = () => {
         withCredentials: true
       }
       )
-      console.log(response?.data)
       setIsLoading(false)
       setIsSuccess(true)
       const role = response?.data.role
       const accessToken = response?.data.accessToken
-      setAuth({ email, password, role, accessToken })
+      setAuth({ email, role, accessToken })
+      setPersist(true)
+      localStorage.setItem("persist", true)
       setEmail('')
       setPassword('')
       navigate(from, { replace: true })

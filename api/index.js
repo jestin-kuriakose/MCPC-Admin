@@ -12,6 +12,7 @@ import logger from "./middleware/logEvents.js"
 import credentials from "./middleware/credentials.js"
 import corsOptions from "./config/corsOptions.js"
 import cookieParser from "cookie-parser"
+import refreshRoute from "./routes/refresh.js"
 
 
 const app = express()
@@ -26,8 +27,9 @@ app.use(express.json());
 app.use(cookieParser())
 app.use("/register", registerRoute)
 app.use("/login", loginRoute)
+app.use("/refresh", refreshRoute)
 
-// app.use(verifyJWT)
+app.use(verifyJWT)
 
 app.use("/member", memberRoute)
 app.use("/tithe", titheRoute)

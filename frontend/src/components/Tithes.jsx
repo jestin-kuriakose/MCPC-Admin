@@ -3,11 +3,59 @@ import { Link } from 'react-router-dom'
 import axios from '../api/axios'
 import { CSVLink } from 'react-csv'
 
+/////////////////////////////////////////////////
+import useAuth from "../hooks/useAuth.js"
+import useRefreshToken from '../hooks/useRefreshToken.js';
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
+////////////////////////////////////////////////
+
 const Tithes = ({count}) => {
 
     const [tithes, setTithes] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState()
+
+/////////////////////////////////////////////////
+  const refresh = useRefreshToken();
+  const { auth } = useAuth()
+
+  const axiosPrivate = axios.create({
+      baseURL: BASE_URL,
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true
+  });
+
+  useEffect(() => {
+      const requestIntercept = axiosPrivate.interceptors.request.use(
+          config => {
+              if (!config.headers['Authorization']) {
+                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
+              }
+              return config;
+          }, (error) => Promise.reject(error)
+      );
+
+      const responseIntercept = axiosPrivate.interceptors.response.use(
+          response => response,
+          async (error) => {
+              const prevRequest = error?.config;
+              if (error?.response?.status === 403 && !prevRequest?.sent) {
+                  prevRequest.sent = true;
+                  const newAccessToken = await refresh();
+                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                  return axiosPrivate(prevRequest);
+              }
+              return Promise.reject(error);
+          }
+      );
+
+      return () => {
+          axiosPrivate.interceptors.request.eject(requestIntercept);
+          axiosPrivate.interceptors.response.eject(responseIntercept);
+      }
+  }, [auth, refresh])
+
+  ///////////////////////////////////////////////////////////////////////////////
 
     useEffect(()=> {
         let isMounted = true;
@@ -16,7 +64,7 @@ const Tithes = ({count}) => {
 
         const getTitheData = async () => {
             try {
-                const response = await axios.get(`/tithe/titheWithMemberData?count=${count}`, {
+                const response = await axiosPrivate.get(`/tithe/titheWithMemberData?count=${count}`, {
                     signal: controller.signal
                 })
 
@@ -43,7 +91,6 @@ const Tithes = ({count}) => {
 
     }, [])
 
-    console.log(tithes)
 
     const TableSkeleton = () => (
         <tr key={Math.random()*10}>

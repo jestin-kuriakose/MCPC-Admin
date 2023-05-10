@@ -1,19 +1,28 @@
-import { axiosPrivate } from "../api/axios";
+// import { axiosPrivate } from "../api/axios";
 import { useContext, useEffect } from "react";
 import useRefreshToken from "./useRefreshToken";
 import AuthContext from "../context/AuthProvider";
+import axios from "axios";
+import useAuth from "./useAuth";
+const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
 
 const useAxiosPrivate = async () => {
-    const refresh = await useRefreshToken();
-    const { auth } = useContext(AuthContext);
+    const refresh = useRefreshToken();
+    const { auth } = useAuth()
+
+    const axiosPrivate = axios.create({
+        baseURL: BASE_URL,
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true
+    });
 
     useEffect(() => {
-
         const requestIntercept = axiosPrivate.interceptors.request.use(
             config => {
                 if (!config.headers['Authorization']) {
                     config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
                 }
+                console.log(config);
                 return config;
             }, (error) => Promise.reject(error)
         );
