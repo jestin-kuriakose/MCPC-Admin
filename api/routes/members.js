@@ -44,7 +44,6 @@ router.post('/', (req, res) => {
 
 // Edit a Member
 router.patch('/:id', async(req, res) => {
-    console.log(req.body)
     try {
         const response = await Member.update(req.body,{
             where: {

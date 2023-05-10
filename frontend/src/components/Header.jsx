@@ -15,7 +15,7 @@ const Header = () => {
             <input className="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search"/>
             <div className="navbar-nav">
                 <div className="nav-item text-nowrap">
-                <a className="nav-link px-3" type='button' data-bs-toggle="modal" data-bs-target="#signOutModal">{auth?.email ? "Jestin" : "Sign Out"}</a>
+                <a className="nav-link px-3" type='button' data-bs-toggle="modal" data-bs-target="#signOutModal">{auth?.accessToken ? "Jestin" : "Sign Out"}</a>
                 </div>
             </div>
         </header>

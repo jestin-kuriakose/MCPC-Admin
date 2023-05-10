@@ -5,7 +5,6 @@ import User from "../models/User.js";
 const router = express.Router()
 
 router.post('/', async (req, res) => {
-    console.log(req.body)
     const { email, password } = req.body
 
     if( !email || !password ) return res.status(400).json({ 'message' : 'Email and Password are required' })
@@ -18,7 +17,6 @@ router.post('/', async (req, res) => {
     if(match) {
 
         const role = foundUser.roles
-        console.log(foundUser)
 
         const accessToken = jwt.sign(
             {
@@ -35,11 +33,6 @@ router.post('/', async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         )
-
-        console.log("accessToken")
-        console.log(accessToken)
-        console.log("refreshToken")
-        console.log(refreshToken)
 
         foundUser.refreshToken = refreshToken
         const result = await User.update( {refreshToken}, { where: { email: foundUser.email}})

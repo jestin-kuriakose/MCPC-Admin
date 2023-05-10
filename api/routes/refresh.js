@@ -7,8 +7,6 @@ router.get('/', async (req, res) => {
     const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt;
-    console.log("getting refresh token from cookies in /refresh")
-    console.log(refreshToken)
     const foundUser = await User.findOne({ where: { refreshToken: refreshToken }  });
     if (!foundUser) return res.sendStatus(403); //Forbidden 
     // evaluate jwt 
@@ -20,9 +18,7 @@ router.get('/', async (req, res) => {
                 return res.sendStatus(403);
             } 
             const roles = foundUser.roles;
-            console.log("roles................................")
-            console.log(roles)
-            console.log(foundUser.roles)
+            
             const accessToken = jwt.sign(
                 {
                     "UserInfo": {

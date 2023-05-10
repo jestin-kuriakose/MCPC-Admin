@@ -23,7 +23,7 @@ const Modal = ({handleClick, type}) => {
             <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button onClick={()=>handleModalButtonClick()} type="button" className="btn btn-primary" data-bs-dismiss="modal">
-                {isLoading ? <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Yes"}
+                {isLoading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : "Yes"}
                 </button>
             </div>
             </div>

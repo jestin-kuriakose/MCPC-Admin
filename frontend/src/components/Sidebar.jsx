@@ -37,18 +37,18 @@ const Sidebar = () => {
 
                 <div className="btn btn-primary mt-4 mx-2">Add Weekly Tithe</div>
 
-                <div class="accordion mt-5" id="accordionExample">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <div className="accordion mt-5" id="accordionExample">
+                    <div className="accordion-item">
+                        <h2 className="accordion-header">
+                        <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                             <Link to={'/reports'} className="nav-link" href="#">
                                 <span data-feather="bar-chart-2" className="align-text-bottom"></span>
                                     Reports
                             </Link>
                         </button>
                         </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                        <div class="accordion-body">
+                        <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                        <div className="accordion-body">
                         <Link to={'/reports'} className="nav-link" href="#">
                             <span data-feather="bar-chart-2" className="align-text-bottom"></span>
                                 Dashboard
