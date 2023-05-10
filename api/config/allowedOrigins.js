@@ -1,6 +1,6 @@
 const allowedOrigins = [
     'http://localhost:5173',
-    'admin.mountcarmelchurch.ca',
+    'https://admin.mountcarmelchurch.ca',
 ];
 
 export default allowedOrigins;
