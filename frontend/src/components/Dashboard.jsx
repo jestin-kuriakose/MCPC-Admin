@@ -2,63 +2,12 @@ import React, { useEffect, useState } from 'react'
 import Members from './Members'
 import Tithes from './Tithes'
 import { Link } from 'react-router-dom'
-import { useFetchTitheAmount } from '../hooks/use-datafetch'
-import axios from 'axios'
-import baseURL from '../http'
-import { fetchTotalTithe } from '../apiCalls'
-
-/////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-////////////////////////////////////////////////
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
 
 const Dashboard = () => {
+  const [totalMembers, setTotalMembers] = useState(0)
   const [totalTithe, setTotalTithe] = useState(0)
-
-/////////////////////////////////////////////////
-  const refresh = useRefreshToken();
-    const { auth } = useAuth()
-
-    const axiosPrivate = axios.create({
-        baseURL: BASE_URL,
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true
-    });
-
-    useEffect(() => {
-        const requestIntercept = axiosPrivate.interceptors.request.use(
-            config => {
-                if (!config.headers['Authorization']) {
-                    config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-                }
-                return config;
-            }, (error) => Promise.reject(error)
-        );
-
-        const responseIntercept = axiosPrivate.interceptors.response.use(
-            response => {
-              return response
-            },
-            async (error) => {
-                const prevRequest = error?.config;
-                if (error?.response?.status === 403 && !prevRequest?.sent) {
-                    prevRequest.sent = true;
-                    const newAccessToken = await refresh();
-                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                    return axiosPrivate(prevRequest);
-                }
-                return Promise.reject(error);
-            }
-        );
-
-        return () => {
-            axiosPrivate.interceptors.request.eject(requestIntercept);
-            axiosPrivate.interceptors.response.eject(responseIntercept);
-        }
-    }, [auth, refresh])
-
-    ///////////////////////////////////////////////////////////////////////////////
+  const axiosPrivate = useAxiosPrivate()
 
   useEffect(()=> {
     const fetchData = async() => {
@@ -70,6 +19,18 @@ const Dashboard = () => {
       }
     }
     fetchData()
+},[totalTithe])
+
+useEffect(()=> {
+  const fetchData = async() => {
+    try {
+      const res = await axiosPrivate.get('/member/reports/memberTotal')
+      setTotalMembers(res.data.count)
+    } catch(err) {
+      console.log(err)
+    }
+  }
+  fetchData()
 },[totalTithe])
 
   return (
@@ -85,7 +46,7 @@ const Dashboard = () => {
 
                 <div className="card col-lg-3 col-6 text-center">
                   <div className="card-body">
-                    <h1 className="card-title">120</h1>
+                    <h1 className="card-title">{totalMembers}</h1>
                     <p className='card-text'>Total Members</p>
                   </div>
                 </div>

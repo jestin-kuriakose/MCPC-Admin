@@ -1,63 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDataFetch } from '../hooks/use-datafetch.js';
 import { CSVLink } from "react-csv"
-import axios from '../api/axios.js';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-
-///////////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-//////////////////////////////////////////////////////
+import Modal from './Modal.jsx';
 
 const Members = ({count}) => {
+    const axiosPrivate = useAxiosPrivate()
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState()
-    // const axiosPrivate = useAxiosPrivate()
-
-///////////////////////////////////////////////////////////////////////
-    const refresh = useRefreshToken();
-    const { auth } = useAuth()
-
-    const axiosPrivate = axios.create({
-        baseURL: BASE_URL,
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true
-    });
-
-    useEffect(() => {
-        const requestIntercept = axiosPrivate.interceptors.request.use(
-            config => {
-                if (!config.headers['Authorization']) {
-                    config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-                }
-                return config;
-            }, (error) => Promise.reject(error)
-        );
-
-        const responseIntercept = axiosPrivate.interceptors.response.use(
-            response => response,
-            async (error) => {
-                const prevRequest = error?.config;
-                if (error?.response?.status === 403 && !prevRequest?.sent) {
-                    prevRequest.sent = true;
-                    const newAccessToken = await refresh();
-                    prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                    return axiosPrivate(prevRequest);
-                }
-                return Promise.reject(error);
-            }
-        );
-
-        return () => {
-            axiosPrivate.interceptors.request.eject(requestIntercept);
-            axiosPrivate.interceptors.response.eject(responseIntercept);
-        }
-    }, [auth, refresh])
-///////////////////////////////////////////////////////////
-
+    const [deleteId, setDeleteId] = useState()
+    const navigate = useNavigate()
 
     useEffect(()=> {
         let isMounted = true;
@@ -93,10 +47,21 @@ const Members = ({count}) => {
         </tr>
     )
 
+    const handleDelete = async() => {
+        try {
+            const response = await axiosPrivate.delete(`/member/${deleteId}`)
+            console.log(response.data)
+            navigate(0)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
   return (
     <>
         <div className="table-responsive">
-            { members && <CSVLink data={members} className='btn btn-primary my-3 btn-sm' filename={"members.csv"} target="_blank">Export to Excel</CSVLink>}
+            { members && <CSVLink data={members} className='btn btn-primary my-3 btn-sm' filename={"members.csv"}>Export to Excel</CSVLink>}
+            
             <table className="table table-striped table-sm ">
                 <thead>
                     <tr>
@@ -117,7 +82,7 @@ const Members = ({count}) => {
                         <td key={3}>{member.lastName}</td>
                         <td key={4}>{member.city}</td>
                         <td key={5}>{member.active}</td>
-                        <td key={6}><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#deleteMemberModal" className='btn btn-danger btn-sm ms-sm-1' to={`/member/${member.id}`}>Delete</button></td>
+                        <td key={6}><Link className='btn btn-primary btn-sm' to={`/member/${member.id}`}>Edit</Link><button type='button' data-bs-toggle="modal" data-bs-target="#saveModal" className='btn btn-danger btn-sm ms-sm-1' onClick={()=>setDeleteId(member.id)}>Delete</button></td>
                     </tr>
                 ))
                 : 
@@ -127,7 +92,7 @@ const Members = ({count}) => {
                 </tbody>
             </table> 
         </div>
-                
+        <Modal handleClick={handleDelete} type={"Member"} action={'Delete'}/>
     </>
   )
 }

@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
-
-/////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-////////////////////////////////////////////////
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
 
 const Tithe = () => {
     const [titheData, setTitheData] = useState({})
@@ -21,47 +15,7 @@ const Tithe = () => {
     const titheId = location.pathname.split('/')[2]
     const navigate = useNavigate()
 
-/////////////////////////////////////////////////
-  const refresh = useRefreshToken();
-  const { auth } = useAuth()
-
-  const axiosPrivate = axios.create({
-      baseURL: BASE_URL,
-      headers: { 'Content-Type': 'application/json' },
-      withCredentials: true
-  });
-
-  useEffect(() => {
-      const requestIntercept = axiosPrivate.interceptors.request.use(
-          config => {
-              if (!config.headers['Authorization']) {
-                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-              }
-              return config;
-          }, (error) => Promise.reject(error)
-      );
-
-      const responseIntercept = axiosPrivate.interceptors.response.use(
-          response => response,
-          async (error) => {
-              const prevRequest = error?.config;
-              if (error?.response?.status === 403 && !prevRequest?.sent) {
-                  prevRequest.sent = true;
-                  const newAccessToken = await refresh();
-                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                  return axiosPrivate(prevRequest);
-              }
-              return Promise.reject(error);
-          }
-      );
-
-      return () => {
-          axiosPrivate.interceptors.request.eject(requestIntercept);
-          axiosPrivate.interceptors.response.eject(responseIntercept);
-      }
-  }, [auth, refresh])
-
-  ///////////////////////////////////////////////////////////////////////////////
+    const axiosPrivate = useAxiosPrivate()
 
     useEffect(()=> {
         let endpoints = [
@@ -133,7 +87,7 @@ const Tithe = () => {
 
                     <div className="col-sm-4">
                         <label htmlFor="middleName" className="form-label fw-bold">Date</label>
-                        <input type="date" className="form-control" id="middleName" placeholder="" defaultValue={titheData?.date} name='date' onChange={handleChange}/>
+                        <input type="date" className="form-control" id="middleName" placeholder="" defaultValue={titheData?.date} name='date' onChange={handleChange} required/>
                         <div className="invalid-feedback">
                             Valid Date is required.
                         </div>
@@ -141,7 +95,7 @@ const Tithe = () => {
 
                     <div className="col-sm-4">
                         <label htmlFor="lastName" className="form-label fw-bold">Amount</label>
-                        <input type="number" className="form-control" id="lastName" placeholder="" defaultValue={titheData?.amount} name='amount' onChange={handleChange} required/>
+                        <input type="number" className="form-control" id="lastName" placeholder="" defaultValue={titheData?.amount} name='amount' onInput={handleChange} required/>
                         <div className="invalid-feedback">
                             Valid amount is required.
                         </div>
@@ -152,7 +106,7 @@ const Tithe = () => {
                         <button type='button' onClick={()=>navigate('/tithes')} className='btn btn-danger mx-2 w-sm-25'>Cancel</button>
                     </div>
 
-                    <Modal handleClick={handleSave} type={"tithe"}/>
+                    <Modal handleClick={handleSave} type={"Tithe"} action={'Update'}/>
 
                     {error == "" ? "" : <p className='text-white bg-danger w-50 text-center'>{error}. Please try again</p>}
                     

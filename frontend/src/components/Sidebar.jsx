@@ -35,7 +35,7 @@ const Sidebar = () => {
                 </li>
                 </ul>
 
-                <div className="btn btn-primary mt-4 mx-2">Add Weekly Tithe</div>
+                <Link to={'/weeklyTithe'} className="btn btn-primary mt-4 mx-2">Add Weekly Tithe</Link>
 
                 <div className="accordion mt-5" id="accordionExample">
                     <div className="accordion-item">

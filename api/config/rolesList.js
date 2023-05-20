@@ -3,3 +3,5 @@ const ROLES_LIST = {
     "Manager": 1984,
     "Guest": 2001
 }
+
+export default ROLES_LIST

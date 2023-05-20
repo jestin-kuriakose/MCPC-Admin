@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import axios from '../api/axios'
 import Modal from './Modal'
 import Loading from './Loading'
-import baseURL from "../http.js"
-
-/////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-////////////////////////////////////////////////
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
 
 const SingleMember = () => {
     const location = useLocation()
@@ -22,47 +15,7 @@ const SingleMember = () => {
 
     const navigate = useNavigate()
 
-        /////////////////////////////////////////////////
-  const refresh = useRefreshToken();
-  const { auth } = useAuth()
-
-  const axiosPrivate = axios.create({
-      baseURL: BASE_URL,
-      headers: { 'Content-Type': 'application/json' },
-      withCredentials: true
-  });
-
-  useEffect(() => {
-      const requestIntercept = axiosPrivate.interceptors.request.use(
-          config => {
-              if (!config.headers['Authorization']) {
-                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-              }
-              return config;
-          }, (error) => Promise.reject(error)
-      );
-
-      const responseIntercept = axiosPrivate.interceptors.response.use(
-          response => response,
-          async (error) => {
-              const prevRequest = error?.config;
-              if (error?.response?.status === 403 && !prevRequest?.sent) {
-                  prevRequest.sent = true;
-                  const newAccessToken = await refresh();
-                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                  return axiosPrivate(prevRequest);
-              }
-              return Promise.reject(error);
-          }
-      );
-
-      return () => {
-          axiosPrivate.interceptors.request.eject(requestIntercept);
-          axiosPrivate.interceptors.response.eject(responseIntercept);
-      }
-  }, [auth, refresh])
-
-  ///////////////////////////////////////////////////////////////////////////////
+    const axiosPrivate = useAxiosPrivate()
 
     useEffect(()=> {
         let isMounted = true
@@ -103,6 +56,7 @@ const SingleMember = () => {
     }
 
     const handleChange = (e) => {
+        console.log(editedMemberData)
         setEditedMemberData((prev)=> ({...prev, [e.target.name]: e.target.value}))
     }
 
@@ -116,7 +70,7 @@ const SingleMember = () => {
                 <div className="row g-3">
                     <div className="col-sm-4">
                         <label for="firstName" className="form-label fw-bold">First name</label>
-                        <input type="text" className="form-control" id="firstName" placeholder="" name='firstName' defaultValue={memberData?.firstName} onChange={handleChange} required/>
+                        <input type="text" className="form-control" id="firstName" placeholder="" name='firstName' defaultValue={memberData?.firstName} onInput={handleChange} required/>
                         <div className="invalid-feedback">
                             Valid first name is required.
                         </div>
@@ -124,12 +78,12 @@ const SingleMember = () => {
 
                     <div className="col-sm-4">
                         <label for="middleName" className="form-label fw-bold">Middle name</label>
-                        <input type="text" className="form-control" id="middleName" name='middleName' placeholder="" defaultValue={memberData?.middleName} onChange={handleChange}/>
+                        <input type="text" className="form-control" id="middleName" name='middleName' placeholder="" defaultValue={memberData?.middleName} onInput={handleChange}/>
                     </div>
 
                     <div className="col-sm-4">
                         <label for="lastName" className="form-label fw-bold">Last name</label>
-                        <input type="text" className="form-control" id="lastName" placeholder="" name='lastName' defaultValue={memberData?.lastName} onChange={handleChange} required/>
+                        <input type="text" className="form-control" id="lastName" placeholder="" name='lastName' defaultValue={memberData?.lastName} onInput={handleChange} required/>
                         <div className="invalid-feedback">
                             Valid last name is required.
                         </div>
@@ -164,20 +118,17 @@ const SingleMember = () => {
 
                     <div className="col-sm-6">
                         <label for="address1" className="form-label fw-bold">Address 1</label>
-                        <input type="text" className="form-control" id="address1" placeholder="" name='address1' defaultValue={memberData?.address1} onChange={handleChange} required/>
-                        <div className="invalid-feedback">
-                            Valid address is required.
-                        </div>
+                        <input type="text" className="form-control" id="address1" placeholder="" name='address1' defaultValue={memberData?.address1} onInput={handleChange}/>
                     </div>
 
                     <div className="col-sm-6">
                         <label for="address2" className="form-label fw-bold">Address 2</label>
-                        <input type="text" className="form-control" id="address2" placeholder="" name='address2' defaultValue={memberData?.address2} onChange={handleChange}/>
+                        <input type="text" className="form-control" id="address2" placeholder="" name='address2' defaultValue={memberData?.address2} onInput={handleChange}/>
                     </div>
 
                     <div className="col-sm-3">
                         <label for="city" className="form-label fw-bold">City</label>
-                        <input type="text" className="form-control" id="city" placeholder="" name='city' defaultValue={memberData?.city} onChange={handleChange} required/>
+                        <input type="text" className="form-control" id="city" placeholder="" name='city' defaultValue={memberData?.city} onInput={handleChange}/>
                         <div className="invalid-feedback">
                             Valid city is required.
                         </div>
@@ -185,7 +136,7 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="province" className="form-label fw-bold">Province</label>
-                        <select name="province" id="province" className='form-select' value={editedMemberData?.province ? editedMemberData?.province : memberData?.province} onChange={handleChange} required>
+                        <select name="province" id="province" className='form-select' value={editedMemberData?.province ? editedMemberData?.province : memberData?.province} onChange={handleChange}>
                             <option value="" disabled>Choose..</option>
                             <option value="AB">Alberta</option>
                             <option value="BC">British Columbia</option>
@@ -203,27 +154,21 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="postalCode" className="form-label fw-bold">Postal Code</label>
-                        <input type="text" className="form-control" id="postalCode" name='postalCode' placeholder="" defaultValue={memberData?.postalCode} onChange={handleChange} required/>
-                        <div className="invalid-feedback">
-                            Valid postal code is required.
-                        </div>
+                        <input type="text" className="form-control" id="postalCode" name='postalCode' placeholder="" defaultValue={memberData?.postalCode} onInput={handleChange}/>
                     </div>
 
                     <div className="col-sm-3">
                     <label for="country" className="form-label fw-bold">Country</label>
-                    <select className="form-select" id="country" defaultValue={memberData?.country} name='country' onChange={handleChange} required>
+                    <select className="form-select" id="country" value={editedMemberData?.country ? editedMemberData?.country : memberData?.country} name='country' onChange={handleChange}>
                         <option disabled value="">Choose...</option>
                         <option value={"United States"}>United States</option>
                         <option value={"Canada"}>Canada</option>
                     </select>
-                    <div className="invalid-feedback">
-                        Please select a valid country.
-                    </div>
                     </div>
 
                     <div className="col-sm-3">
                         <label for="email1" className="form-label fw-bold">Email 1</label>
-                        <input type="text" className="form-control" id="email1" placeholder="" name='email1' defaultValue={memberData?.email1} onChange={handleChange} required/>
+                        <input type="email" className="form-control" id="email1" placeholder="" name='email1' defaultValue={memberData?.email1} onInput={handleChange} required/>
                         <div className="invalid-feedback">
                             Valid email is required.
                         </div>
@@ -231,14 +176,14 @@ const SingleMember = () => {
 
                     <div className="col-sm-3">
                         <label for="email2" className="form-label fw-bold">Email 2</label>
-                        <input type="text" className="form-control" id="email2" placeholder="" name='email2' defaultValue={memberData?.email2} onChange={handleChange}/>
+                        <input type="email" className="form-control" id="email2" placeholder="" name='email2' defaultValue={memberData?.email2} onInput={handleChange}/>
                     </div>
 
                     <div className="col-sm-3">
                         <label for="phone1" className="form-label fw-bold">Phone 1</label>
                         <div className="input-group has-validation">
                             <span className="input-group-text">+1</span>
-                            <input type="text" className="form-control" id="phone1" placeholder="" name='phone1' defaultValue={memberData?.phone1} onChange={handleChange} required/>
+                            <input type="text" className="form-control" id="phone1" placeholder="" name='phone1' defaultValue={memberData?.phone1} onInput={handleChange}/>
                             <div className="invalid-feedback">
                                 Valid phone is required.
                             </div>
@@ -248,7 +193,7 @@ const SingleMember = () => {
                         <label for="phone2" className="form-label fw-bold">Phone 2</label>
                         <div className="input-group">
                             <span className="input-group-text">+1</span>
-                            <input type="text" className="form-control" id="phone2" name='phone2' placeholder="" defaultValue={memberData?.phone2} onChange={handleChange}/>
+                            <input type="text" className="form-control" id="phone2" name='phone2' placeholder="" defaultValue={memberData?.phone2} onInput={handleChange}/>
                         </div>
                     </div>
 
@@ -316,7 +261,7 @@ const SingleMember = () => {
                     <button type='button' onClick={()=>navigate(-1)} className='btn btn-danger w-sm-25 mx-2'>Cancel</button>
                 </div>
                 
-                <Modal handleClick={handleSave} type={"member"}/>
+                <Modal handleClick={handleSave} type={"Member"} action={'Update'}/>
 
                 {error == "" ? "" : <p className='text-white text-center bg-danger'>{error}. Please try again</p>}
 

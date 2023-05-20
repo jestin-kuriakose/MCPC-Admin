@@ -1,24 +1,21 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useDataFetch, useFetchTotalTithe } from '../../hooks/use-datafetch'
-import axios from 'axios'
-import baseURL from '../../http'
 import { CSVLink } from 'react-csv'
-
+import { axiosPrivate } from '../../api/axios'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const DonationSlip = () => {
-
+    const axiosPrivate = useAxiosPrivate()
     const [titheData, setTitheData] = useState([])
     const [year, setYear] = useState(new Date().getFullYear())
     const [isLoading, setIsLoading] = useState(false)
-
 
     useEffect(()=> {
         setIsLoading(true)
         const fetchData = async () =>  {
             const fromDate = `1/1/${year}`
             const toDate = `12/31/${year}`
-            const res = await axios.get( baseURL + `/tithe/reports/titheTotal?fromDate=${fromDate}&toDate=${toDate}` )
+            const res = await axiosPrivate.get(`/tithe/reports/titheTotal?fromDate=${fromDate}&toDate=${toDate}` )
             setTitheData(res.data)
             setIsLoading(false)
         }
@@ -33,6 +30,18 @@ const DonationSlip = () => {
             <td key={4} className='skeleton'>{"  .   "}</td>
         </tr>
     )
+
+    const handleEmail = (e, tithe) => {
+        e.preventDefault()
+        const formData = new FormData()
+        const donationData = {
+            firstName : tithe.member.firstName,
+            lastName : tithe.member.lastName,
+            email : tithe.member.email,
+        }
+        formData.append('donationData', JSON.stringify(donationData))
+        console.log(formData)
+    }
 
   return (
     <>
@@ -79,6 +88,8 @@ const DonationSlip = () => {
                                 <Link className='btn btn-primary btn-sm ms-2' 
                                         to={`/pdfDownload/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe.member.address1}&address2=${tithe.member.address2}&city=${tithe.member.city}&province=${tithe.member.province}&country=${tithe.member.country}&postalCode=${tithe.member.postalCode}&titheAmount=${tithe?.totalAmount}`}>
                                             Download</Link>
+                                <button className='btn btn-primary btn-sm ms-2' onClick={(e)=>handleEmail(e, tithe)}>
+                                            Email</button>
                             </td>
                         </tr>
                     ))

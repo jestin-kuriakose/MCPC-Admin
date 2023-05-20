@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { members } from '../dummyData'
 import { useNavigate } from 'react-router-dom'
 import Modal from './Modal'
-import axios from 'axios'
 import Loading from './Loading'
-import baseURL from "../http.js"
-
-/////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-////////////////////////////////////////////////
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
 
 const NewTithe = () => {
     const navigate = useNavigate()
@@ -18,48 +10,8 @@ const NewTithe = () => {
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const axiosPrivate = useAxiosPrivate()
 
-/////////////////////////////////////////////////
-  const refresh = useRefreshToken();
-  const { auth } = useAuth()
-
-  const axiosPrivate = axios.create({
-      baseURL: BASE_URL,
-      headers: { 'Content-Type': 'application/json' },
-      withCredentials: true
-  });
-
-  useEffect(() => {
-      const requestIntercept = axiosPrivate.interceptors.request.use(
-          config => {
-              if (!config.headers['Authorization']) {
-                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-              }
-              return config;
-          }, (error) => Promise.reject(error)
-      );
-
-      const responseIntercept = axiosPrivate.interceptors.response.use(
-          response => response,
-          async (error) => {
-              const prevRequest = error?.config;
-              if (error?.response?.status === 403 && !prevRequest?.sent) {
-                  prevRequest.sent = true;
-                  const newAccessToken = await refresh();
-                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                  return axiosPrivate(prevRequest);
-              }
-              return Promise.reject(error);
-          }
-      );
-
-      return () => {
-          axiosPrivate.interceptors.request.eject(requestIntercept);
-          axiosPrivate.interceptors.response.eject(responseIntercept);
-      }
-  }, [auth, refresh])
-
-  ///////////////////////////////////////////////////////////////////////////////
     useEffect(() => {
         const fetchMembers = async() => {
             try {
@@ -115,7 +67,7 @@ const NewTithe = () => {
 
                         <div className="col-sm-2">
                             <label className="form-label">Amount $</label>
-                            <input onChange={(e)=>setTitheInfo((prev) => ({...prev, amount: e.target.value}))} defaultValue={'0'} type="number" name="amount" id="amount" className='form-control' required/>
+                            <input onInput={(e)=>setTitheInfo((prev) => ({...prev, amount: e.target.value}))} defaultValue={'0'} type="number" name="amount" id="amount" className='form-control' required/>
                             <div className="invalid-feedback">
                                 Valid Member is required.
                             </div>
@@ -127,7 +79,7 @@ const NewTithe = () => {
                         </div>
                             
                         {error == "" ? "" : <p className='bg-danger text-white text-center w-50'>{error}. Please try again</p>}
-                        <Modal handleClick={handleSave} type={'tithe'}/>
+                        <Modal handleClick={handleSave} type={'Tithe'} action={'Create'}/>
                     </div>
                 </form>
             </div>

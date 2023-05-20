@@ -27,6 +27,7 @@ import Loading from './components/Loading';
 import RequireAuth from "./components/RequireAuth";
 import Layout from "./components/Layout";
 import PersistLogin from "./components/PersistLogin";
+import WeeklyTithe from "./components/WeeklyTithe";
 
 function App() {
   const router = createBrowserRouter([
@@ -76,6 +77,10 @@ function App() {
                     {
                       path: "newTithe",
                       element: <Suspense fallback={<Loading/>}><NewTithe/></Suspense>
+                    },
+                    {
+                      path: "weeklyTithe",
+                      element: <Suspense fallback={<Loading/>}><WeeklyTithe/></Suspense>
                     },
                   ]
                 },

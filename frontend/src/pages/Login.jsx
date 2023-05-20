@@ -36,7 +36,8 @@ const Login = () => {
       localStorage.setItem("persist", true)
       setEmail('')
       setPassword('')
-      navigate(from, { replace: true })
+      navigate('/')
+      // navigate(from, { replace: true })
     } catch(err) {
       console.log(err)
       setIsLoading(false)

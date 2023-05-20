@@ -1,61 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import axios from '../api/axios'
+import { Link, useNavigate } from 'react-router-dom'
 import { CSVLink } from 'react-csv'
-
-/////////////////////////////////////////////////
-import useAuth from "../hooks/useAuth.js"
-import useRefreshToken from '../hooks/useRefreshToken.js';
-const BASE_URL = process.env.NODE_ENV == "production" ? "https://mcpc-admin-api.onrender.com" : "http://localhost:3000"
-////////////////////////////////////////////////
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
+import Modal from './Modal'
 
 const Tithes = ({count}) => {
 
+    const axiosPrivate = useAxiosPrivate()
     const [tithes, setTithes] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState()
-
-/////////////////////////////////////////////////
-  const refresh = useRefreshToken();
-  const { auth } = useAuth()
-
-  const axiosPrivate = axios.create({
-      baseURL: BASE_URL,
-      headers: { 'Content-Type': 'application/json' },
-      withCredentials: true
-  });
-
-  useEffect(() => {
-      const requestIntercept = axiosPrivate.interceptors.request.use(
-          config => {
-              if (!config.headers['Authorization']) {
-                  config.headers['Authorization'] = `Bearer ${auth?.accessToken}`;
-              }
-              return config;
-          }, (error) => Promise.reject(error)
-      );
-
-      const responseIntercept = axiosPrivate.interceptors.response.use(
-          response => response,
-          async (error) => {
-              const prevRequest = error?.config;
-              if (error?.response?.status === 403 && !prevRequest?.sent) {
-                  prevRequest.sent = true;
-                  const newAccessToken = await refresh();
-                  prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                  return axiosPrivate(prevRequest);
-              }
-              return Promise.reject(error);
-          }
-      );
-
-      return () => {
-          axiosPrivate.interceptors.request.eject(requestIntercept);
-          axiosPrivate.interceptors.response.eject(responseIntercept);
-      }
-  }, [auth, refresh])
-
-  ///////////////////////////////////////////////////////////////////////////////
+    const [deleteId, setDeleteId] = useState()
+    const navigate = useNavigate()
 
     useEffect(()=> {
         let isMounted = true;
@@ -88,7 +44,6 @@ const Tithes = ({count}) => {
             isMounted = false;
             controller.abort()
         }
-
     }, [])
 
 
@@ -101,6 +56,16 @@ const Tithes = ({count}) => {
             <td key={5}>{"."}</td>
         </tr>
     )
+
+    const handleDelete = async() => {
+        try {
+            const response = await axiosPrivate.delete(`/tithe/${deleteId}`)
+            console.log(response.data)
+            navigate(0)
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
   return (
     <>
@@ -125,7 +90,7 @@ const Tithes = ({count}) => {
                         <td key={3}>{tithe.firstName}</td>
                         <td key={4}>{tithe.lastName}</td>
                         <td key={5}>$ {tithe.amount}</td>
-                        <td key={6}><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#deleteTitheModal">Delete</button></td>
+                        <td key={6}><Link className='btn btn-primary btn-sm' to={`/tithe/${tithe.id}`}>Edit</Link><button className="btn btn-danger btn-sm ms-sm-1" data-bs-toggle="modal" data-bs-target="#saveModal" onClick={()=>setDeleteId(tithe.id)}>Delete</button></td>
                     </tr>
                 )) :
                     Array(count).fill(<TableSkeleton/>)
@@ -133,6 +98,7 @@ const Tithes = ({count}) => {
             </tbody>
             </table>
         </div>
+        <Modal handleClick={handleDelete} type={'Tithe'} action={'Delete'}/>
     </>
   )
 }

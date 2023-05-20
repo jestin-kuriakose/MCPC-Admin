@@ -4,10 +4,12 @@ import Tithe from "../models/Tithe.js"
 import { Op, where } from "sequelize"
 import Member from "../models/Member.js"
 import sequelize from "../config/db.js"
+import verifyRoles from "../middleware/verifyRoles.js"
+import ROLES_LIST from "../config/rolesList.js"
 
 
 // Get all Tithe info
-router.get('/titheData', (req, res) => {
+router.get('/titheData', verifyRoles(ROLES_LIST.Admin), (req, res) => {
     const count = req.query.count === undefined ? 1000 : Number(req.query.count)
     const prevYear = req.query.year === undefined ? 1900 : req.query.year - 1;
     const nextYear = req.query.year === undefined ? new Date().getFullYear() + 1 : req.query.year + 1;
@@ -32,7 +34,7 @@ router.get('/titheData', (req, res) => {
 })
 
 // Get single Tithe info
-router.get('/titheData/:id', (req, res) => {
+router.get('/titheData/:id', verifyRoles(ROLES_LIST.Admin), (req, res) => {
 
     Tithe.findOne( { where: { id: req.params.id }} )
     .then((tithe) => {
@@ -45,7 +47,7 @@ router.get('/titheData/:id', (req, res) => {
 })
 
 // Get all Tithe info with member Data , 
-router.get('/titheWithMemberData', (req, res) => {
+router.get('/titheWithMemberData', verifyRoles(ROLES_LIST.Admin), (req, res) => {
     const count = req.query.count === undefined ? 1000 : Number(req.query.count)
     const prevYear = req.query.year === undefined ? 1900 : req.query.year - 1;
     const nextYear = req.query.year === undefined ? new Date().getFullYear() + 1 : req.query.year + 1;
@@ -69,7 +71,7 @@ router.get('/titheWithMemberData', (req, res) => {
 })
 
 // Get Single Tithe info with member Data 
-router.get('/titheWithMemberData/:id', (req, res) => {
+router.get('/titheWithMemberData/:id', verifyRoles(ROLES_LIST.Admin), (req, res) => {
     Tithe.findOne({
         where: { 
             id: req.params.id
@@ -89,7 +91,7 @@ router.get('/titheWithMemberData/:id', (req, res) => {
 })
 
 //Create a new Tithe Info
-router.post('/', (req,res) => {
+router.post('/', verifyRoles(ROLES_LIST.Admin), (req,res) => {
     Tithe.create(req.body)
     .then((tithe) => {
         res.status(200).json(tithe)
@@ -100,8 +102,20 @@ router.post('/', (req,res) => {
     })
 })
 
+//Create a new Tithe Info in bulk
+router.post('/bulk', verifyRoles(ROLES_LIST.Admin), (req,res) => {
+    Tithe.bulkCreate(req.body)
+    .then((tithe) => {
+        res.status(200).json(tithe)
+    })
+    .catch((err) => {
+        console.log("error", err)
+        res.status(500).json("Error creating Tithe Info")
+    })
+})
+
 // editing an existing Tithe info
-router.patch('/:id', (req, res) => {
+router.patch('/:id', verifyRoles(ROLES_LIST.Admin), (req, res) => {
     Tithe.update(req.body, {
         where: {
             id: req.params.id
@@ -116,7 +130,20 @@ router.patch('/:id', (req, res) => {
     })
 })
 
-router.get('/reports/totalAmount', async(req, res) => {
+//Delete a Tithe
+router.delete('/:id', verifyRoles(ROLES_LIST.Admin), async(req, res) => {
+    try {
+        const response = await Tithe.destroy( { where: { id: req.params.id } } )
+        res.status(200).json({message: "Tithe Deleted"})
+    }catch(err) {
+        console.log(err)
+        res.status(500).json({error: err.message})
+    }
+})
+
+// Gives the total Tithe Amount
+// Can be filtered according to Date and/or memberId
+router.get('/reports/totalAmount', verifyRoles(ROLES_LIST.Admin), async(req, res) => {
     const prevYear = req.query.year - 1;
     const nextYear = req.query.year + 1;
 
@@ -160,7 +187,7 @@ router.get('/reports/totalAmount', async(req, res) => {
     }
 })
 
-router.get('/reports/titheTotal', (req, res) => {
+router.get('/reports/titheTotal', verifyRoles(ROLES_LIST.Admin), (req, res) => {
 
     Tithe.findAll({
         attributes: [

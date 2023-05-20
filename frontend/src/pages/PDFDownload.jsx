@@ -1,11 +1,11 @@
-import ReactPDF, { PDFDownloadLink, usePDF } from '@react-pdf/renderer';
+import ReactPDF, { BlobProvider, Document, PDFDownloadLink, PDFViewer, Page, Text, pdf, usePDF } from '@react-pdf/renderer';
 import React from 'react'
 import PDFDocument from '../components/PDFDocument';
 import { useSearchParams } from 'react-router-dom';
 
 
-
 const PDFDownload = () => {
+
     let searchParams = {}
     const [params] = useSearchParams()
 
@@ -15,6 +15,10 @@ const PDFDownload = () => {
     }
 
     const fileName = `Donation_Slip-${searchParams.firstName}_${searchParams.lastName}-${searchParams.year}`
+
+    // const [instance, updateInstance] = usePDF({ document: <MyDocument/> });
+
+
 
 return(
     <div className='d-flex align-items-center justify-content-center' style={{height:"100vh"}}>

@@ -7,6 +7,7 @@ import titheRoute from "./routes/tithes.js"
 import userRoute from "./routes/users.js"
 import registerRoute from "./routes/register.js"
 import loginRoute from "./routes/login.js"
+import logoutRoute from "./routes/logout.js"
 import verifyJWT from "./middleware/verifyJWT.js"
 import logger from "./middleware/logEvents.js"
 import credentials from "./middleware/credentials.js"
@@ -19,7 +20,7 @@ const app = express()
 
 const PORT = process.env.PORT || 3000;
 
-// app.use(logger)
+app.use(logger)
 app.use(credentials)
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: false }));
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(cookieParser())
 app.use("/register", registerRoute)
 app.use("/login", loginRoute)
+app.use("/logout", logoutRoute)
 app.use("/refresh", refreshRoute)
 
 app.use(verifyJWT)

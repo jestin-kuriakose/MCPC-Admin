@@ -4,6 +4,7 @@ import { useDataFetch, useFetchTotalTithe } from '../../hooks/use-datafetch'
 import axios from 'axios'
 import baseURL from '../../http'
 import { CSVLink } from 'react-csv'
+import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
 const TitheReports = () => {
     
@@ -14,12 +15,12 @@ const TitheReports = () => {
 
     const [isLoading, setIsLoading] = useState(false)
 
+    const axiosPrivate = useAxiosPrivate()
+
     useEffect(()=> {
         setIsLoading(true)
         const fetchData = async () =>  {
-            // const fromDate = `1/1/${year}`
-            // const toDate = `12/31/${year}`
-            const res = await axios.get( baseURL + `/tithe/reports/titheTotal?fromDate=${fromDate}&toDate=${toDate}` )
+            const res = await axiosPrivate.get( `/tithe/reports/titheTotal?fromDate=${fromDate}&toDate=${toDate}` )
             setTitheData(res.data)
             setIsLoading(false)
         }

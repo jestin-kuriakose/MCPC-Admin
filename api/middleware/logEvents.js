@@ -4,6 +4,9 @@ import fs from 'fs'
 import {default as fsWithCallbacks} from 'fs'
 const fsPromises = fsWithCallbacks.promises
 import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const logEvents = async (message, logName) => {
     const dateTime = `${format(new Date(), 'yyyyMMdd\tHH:mm:ss')}`;
