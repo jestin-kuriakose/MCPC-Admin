@@ -4,6 +4,7 @@ import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
+import axios from '../api/axios'
 
 const Tithe = () => {
     const [titheData, setTitheData] = useState({})
@@ -18,26 +19,16 @@ const Tithe = () => {
     const axiosPrivate = useAxiosPrivate()
 
     useEffect(()=> {
-        let endpoints = [
-            `${baseURL}/tithe/titheData/${titheId}`,
-            `${baseURL}/member`
-        ]
         let isMounted = true;
         const controller = new AbortController()
 
         const getTitheData = async () => {
-
-            axiosPrivate.all(endpoints.map((endpoint) => axiosPrivate.get(endpoint)))
-            .then(
-                axiosPrivate.spread((titheData, memberData) => {
-                    setTitheData(titheData.data)
-                    setMembers(memberData.data)
-                })
-            )
-            .catch((err) => {
-                console.log(err)
-            })
-
+            try{
+                const response = await axiosPrivate.get(`/tithe/titheData/${titheId}`)
+                setTitheData(response.data)
+            } catch(err) {
+                setError(err.message)
+            }
         }
                 
         getTitheData()
@@ -47,6 +38,27 @@ const Tithe = () => {
             controller.abort()
         }
 
+    }, [])
+
+
+    useEffect(() => {
+        let isMounted = true;
+        const controller = new AbortController()
+
+        const fetchMembers = async() => {
+            try {
+                const response = await axiosPrivate.get('/member/memberData')
+                setMembers(response.data)
+            } catch(err) {
+                setError(err.message)
+            }
+        }
+        fetchMembers()
+
+        return () => {
+            isMounted = false
+            controller.abort()
+        }
     }, [])
 
     const handleChange = (e) => {
@@ -75,7 +87,7 @@ const Tithe = () => {
                 <div className="row g-3">
                     <div className="col-sm-4">
                         <label htmlFor="firstName" className="form-label fw-bold">Member</label>
-                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : members?.memberId} onChange={handleChange}>
+                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : titheData?.memberId} onChange={handleChange}>
                                 {members?.map((member) => (
                                     <option key={member?.id} id={member?.id} value={member?.id}>{member?.firstName + " " + member?.lastName}</option>
                                 ))}

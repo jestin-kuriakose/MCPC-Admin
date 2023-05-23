@@ -16,7 +16,7 @@ const MembersList = () => {
                     <Link to={'/newMember'} className="btn btn-outline-primary btn-sm ms-3 h-75">Add a New Member</Link>
                 </div>
                         <Suspense fallback={<Loading/>}>
-                            <Members count={10}/>
+                            <Members count={50}/>
                         </Suspense>
                 </main>
             </div>

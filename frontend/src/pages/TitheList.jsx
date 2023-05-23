@@ -15,9 +15,9 @@ const TitheList = ({count}) => {
                     <Link to={'/newTithe'} className="btn btn-outline-primary btn-sm ms-3 h-75 ">Add New Tithe Info</Link>
                 </div>
                 <Suspense fallback={<Loading/>}>
-                    <Tithes count={10}/>
+                    <Tithes count={50}/>
                 </Suspense>
-                
+
                 </main>
             </div>
         </div>

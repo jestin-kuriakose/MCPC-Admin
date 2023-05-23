@@ -8,13 +8,12 @@ import NewTitheForm from './NewTitheForm'
 const WeeklyTithe = () => {
 
     const navigate = useNavigate()
+    const axiosPrivate = useAxiosPrivate()
     const [count, setCount] = useState(1)
     const [members, setMembers] = useState([])
-    const [titheArray, setTitheArray] = useState([])
-    const [titheInfo, setTitheInfo] = useState({date: new Date().toLocaleDateString()})
+    const [titheArray, setTitheArray] = useState([{date: new Date().toLocaleDateString()}])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
-    const axiosPrivate = useAxiosPrivate()
     const [array, setArray] = useState([])
 
     useEffect(() => {
@@ -24,29 +23,55 @@ const WeeklyTithe = () => {
                 const res = await axiosPrivate.get("/member/memberData")
                 setMembers(res.data)
             } catch(err) {
-                console.log(err)
+                setError(err.message)
             }
         }
         fetchMembers()
-        console.log(array)
     }, [])
 
 useEffect(() => {
     setArray((prev) => [...prev, count])
 }, [count])
 
-    const handleAdd = (tithe) => {
+    const handleChange = (e, index) => {
+        const objectExist = titheArray?.filter(obj => obj.index == index+1)
+        setTitheArray((prev) => {
+            let newArray = []
+            if(objectExist.length > 0) {
+                newArray = prev?.map((tithe, i) => {
+                    if(tithe.index == index+1) {
+                        return {...tithe, [e.target.name]: e.target.value}
+                    } else {
+                        return tithe
+                    }
+                })
+            } else {
+                newArray = [...prev, {index: count, date: new Date().toLocaleDateString(), [e.target.name]: e.target.value }]
+            }
+            return newArray
+        })
+    }
+
+    const handleAdd = () => {
         setCount(prev => prev + 1)
-        setTitheArray((prev) => [...prev, titheInfo])
-        console.log(titheArray)
+    }
+
+    const handleDelete = (e, index) => {
+        const filteredArray = titheArray.filter(tithe => tithe.index != index+1)
+        setTitheArray(filteredArray)
+        
     }
 
     const handleSave = async() => {
-        setTitheArray((prev) => [...prev, titheInfo])
+        const filteredArray = titheArray.filter(tithe => tithe.index > 0)
+        const newArray = filteredArray.map((obj) => {
+            delete obj.index
+            return obj
+        })
         setIsLoading(true)
         setError("")
         try{
-            const res = await axiosPrivate.post("/tithe/bulk", titheArray)
+            const res = await axiosPrivate.post("/tithe/bulk", newArray)
             setIsLoading(false)
             navigate('/tithes')
         } catch(err) {
@@ -60,13 +85,14 @@ useEffect(() => {
         {isLoading ? <Loading/> : <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
                 <h3 className="my-3">Weekly Tithe In-take</h3>
-                <form>
+                <form onSubmit={handleSave}>
+                <div>
                     {array?.map((arr, index) => (
-                        // <NewTitheForm key={index} members={members} count={count} handleAdd={handleAdd}/>
-                        <div className="row g-3">
+                        <div className="row g-3 border p-2 m-2">
+                            <button onClick={(e)=>handleDelete(e, index)} type="button" class="btn-close" aria-label="Close"></button>
                             <div className="col-sm-4 ">
                                 <label htmlFor="memberValidation">Member</label>
-                                <select name="member" id="memberValidation" className="form-select" defaultValue={''} required onChange={(e)=>setTitheInfo((prev)=>({...prev, memberId: e.target.value}))}>
+                                <select name="memberId" id="memberValidation" className="form-select" defaultValue={''} required onChange={(e)=>handleChange(e, index)}>
                                     <option value="" disabled>Choose...</option>
                                         {members?.map((member) => (
                                             <option value={member.id}>{member.firstName + " " + member.lastName}</option>
@@ -76,19 +102,22 @@ useEffect(() => {
 
                             <div className="col-sm-3 ">
                                 <label htmlFor="dateValidation">Date</label>
-                                <input type="date" onChange={(e)=>setTitheInfo((prev)=>({...prev, date: new Date(e.target.value).toLocaleDateString()}))} defaultValue={new Date().toISOString().split('T')[0]} className="form-control" id="dateValidation" required/>
+                                <input type="date" name='date' onChange={(e)=>handleChange(e, index)}  className="form-control" id="dateValidation" required/>
                             </div>
 
                             <div className="col-sm-3">
-                                <label htmlFor="amountValidation">Amount</label>
-                                <input min={1} onInput={(e)=>setTitheInfo((prev) => ({...prev, amount: e.target.value}))} type="number" name="amount" id="amountValidation" className="form-control" required/>
+                                <label htmlFor="amountValidation">Amountt</label>
+                                <input min={1} onInput={(e)=>handleChange(e, index)} type="number" name="amount" id="amountValidation" className="form-control" required/>
                             </div>
-                            <button className="btn btn-primary col-sm-1 " onClick={handleAdd} type="button">+</button>
                         </div>
                     ))}
 
-                    <div className="w-sm-25">
-                        <button className="btn btn-primary w-sm-25" type="button" onClick={handleSave}>Save</button>
+                        <button className="btn btn-primary col-sm-1 mt-3" onClick={handleAdd} type="button">Add</button>
+                    </div>
+
+
+                    <div className="w-sm-25 mt-3">
+                        <button className="btn btn-primary w-sm-25" type="submit" >Save</button>
                         <button onClick={()=>navigate(-1)} className="btn btn-danger btn-sm-sm mx-1">Cancel</button>
                     </div>
                 </form>

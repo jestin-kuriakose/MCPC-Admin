@@ -9,7 +9,7 @@ const Tithes = ({count}) => {
     const axiosPrivate = useAxiosPrivate()
     const [tithes, setTithes] = useState([])
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState()
+    const [error, setError] = useState("")
     const [deleteId, setDeleteId] = useState()
     const navigate = useNavigate()
 
@@ -34,7 +34,7 @@ const Tithes = ({count}) => {
 
                 isMounted && setTithes(updatedData)
             } catch(err) {
-                console.log(err)
+                setError(err.message)
             }
         }
 
@@ -60,10 +60,9 @@ const Tithes = ({count}) => {
     const handleDelete = async() => {
         try {
             const response = await axiosPrivate.delete(`/tithe/${deleteId}`)
-            console.log(response.data)
             navigate(0)
         } catch (err) {
-            console.log(err)
+            setError(err.message)
         }
     }
 
