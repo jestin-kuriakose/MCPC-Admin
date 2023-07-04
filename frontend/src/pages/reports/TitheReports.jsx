@@ -1,8 +1,4 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useDataFetch, useFetchTotalTithe } from '../../hooks/use-datafetch'
-import axios from 'axios'
-import baseURL from '../../http'
 import { CSVLink } from 'react-csv'
 import useAxiosPrivate from '../../hooks/useAxiosPrivate'
 
@@ -41,7 +37,7 @@ const TitheReports = () => {
             <div className="row">
                 <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-                <h2 className='fw-normal mt-3'>Tithe Reports</h2>
+                <h2 className='fw-normal mt-3'>Tithe Reports by Member</h2>
                 <p className='lead lh-1'>View or download Tithe reports here</p>
 
                 { titheData && <CSVLink data={titheData} className='btn btn-primary my-3 btn-sm' filename={`Donation_Summary_${year}.csv`} target="_blank">Export to Excel</CSVLink>}

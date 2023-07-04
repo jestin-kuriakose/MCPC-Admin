@@ -1,6 +1,6 @@
 import React from 'react';
 import { PDFViewer, StyleSheet} from '@react-pdf/renderer';
-import PDFDocument from '../components/PDFDocument';
+import TaxSlipTemplate from '../components/TaxSlipTemplate';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 
@@ -22,7 +22,7 @@ const PDFView = () => {
 
 return (
   <PDFViewer style={styles.viewer}>
-      <PDFDocument params={searchParams}/>
+      <TaxSlipTemplate params={searchParams}/>
   </PDFViewer>
 )
 }

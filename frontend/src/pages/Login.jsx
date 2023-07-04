@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react'
-import axios from '../api/axios'
+import axios, { login } from '../api/axios'
 import AuthContext from '../context/AuthProvider'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -21,6 +21,7 @@ const Login = () => {
     setError("")
 
     try {
+      // const response = login(email, password)
       const response = await axios.post('/login', {email, password}, 
       {
         headers: { 'Content-Type' : 'application/json' },
@@ -55,14 +56,12 @@ const Login = () => {
             <button disabled={!email || !password || isLoading} type="submit" className='btn btn-primary w-100'>{isLoading ? "Loading" : "Login"}</button>
 
             {error &&
-              <div class="alert alert-danger d-flex align-items-center mt-2" role="alert">
+              <div className="alert alert-danger d-flex align-items-center mt-2" role="alert">
                   {error}
               </div>}
 
-            
-
             {isSuccess &&
-              <div class="alert alert-success d-flex align-items-center mt-2" role="alert">
+              <div className="alert alert-success d-flex align-items-center mt-2" role="alert">
                 You are signed in
               </div>}
 

@@ -6,7 +6,7 @@ import React, { lazy, Suspense } from 'react';
 import './App.css'
 
 const Dashboard = React.lazy( () => import("./components/Dashboard"))
-const SingleMember = React.lazy( () => import("./components/SingleMember"))
+
 const NewMember = React.lazy( () => import("./components/NewMember"))
 
 const NewTithe = React.lazy( () => import("./components/NewTithe"))
@@ -16,7 +16,6 @@ const ErrorPage = React.lazy( () => import("./pages/ErrorPage"))
 const Home = React.lazy( () => import("./pages/Home"))
 const PDFView = React.lazy( () => import("./pages/PDFView"))
 const Login = React.lazy( () => import("./pages/Login"))
-const MembersList = React.lazy(()=>import("./pages/MembersList"))
 const Reports = React.lazy(()=>import("./pages/reports/Reports"))
 const PDFDownload = React.lazy(()=>import("./pages/PDFDownload"))
 const DonationSlip = React.lazy(()=>import("./pages/reports/DonationSlip"))
@@ -28,6 +27,8 @@ import RequireAuth from "./components/RequireAuth";
 import Layout from "./components/Layout";
 import PersistLogin from "./components/PersistLogin";
 import WeeklyTithe from "./components/WeeklyTithe";
+import SingleMember from "./components/SingleMember";
+import MembersList from "./pages/MembersList"
 
 function App() {
   const router = createBrowserRouter([
@@ -56,11 +57,11 @@ function App() {
                     },
                     {
                       path: "members",
-                      element: <Suspense fallback={<Loading/>}><MembersList/></Suspense>
+                      element: <MembersList/>
                     },
                     {
                       path: "member/:memberId",
-                      element: <Suspense fallback={<Loading/>}><SingleMember/></Suspense>,
+                      element: <SingleMember/>,
                     },
                     {
                       element: <Suspense fallback={<Loading/>}><NewMember/></Suspense>,

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Button, Form } from 'react-bootstrap';
 import Modal from './Modal'
 import Loading from './Loading'
 import baseURL from "../http.js"
@@ -9,9 +10,15 @@ import axios from '../api/axios'
 const Tithe = () => {
     const [titheData, setTitheData] = useState({})
     const [editedTitheData, setEditedTitheData] = useState({})
+    const [updatedTitheData, setUpdatedTitheData] = useState({})
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [errors, setErrors] = useState({
+        optionError: '',
+        dateError: '',
+        numberError: ''
+      });
     const location = useLocation()
     const titheId = location.pathname.split('/')[2]
     const navigate = useNavigate()
@@ -26,6 +33,8 @@ const Tithe = () => {
             try{
                 const response = await axiosPrivate.get(`/tithe/titheData/${titheId}`)
                 setTitheData(response.data)
+                setUpdatedTitheData(response.data)
+                console.log(response.data)
             } catch(err) {
                 setError(err.message)
             }
@@ -62,68 +71,112 @@ const Tithe = () => {
     }, [])
 
     const handleChange = (e) => {
+        setUpdatedTitheData((prev) => ({...prev, [e.target.name]: e.target.value}))
         setEditedTitheData((prev) => ({...prev, [e.target.name] : e.target.value}))
     }
 
-    const handleSave = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         setIsLoading(true)
-        try{
-            const res = await axiosPrivate.patch(`/tithe/${titheId}`, editedTitheData)
-            setIsLoading(false)
-            navigate('/tithes')
-        } catch(err) {
-            setError(err.message)
-            setIsLoading(false)
-        }
-    }
+        setError("")
+        setErrors({
+            optionError: '',
+            dateError: '',
+            numberError: ''
+          })
 
+        let formIsValid = true;
+
+        if (updatedTitheData?.memberId === undefined || updatedTitheData?.memberId === '') {
+          setErrors({ ...errors, memberError: 'Please select a member' });
+          formIsValid = false;
+        }
+    
+        if (updatedTitheData?.date === undefined || updatedTitheData?.date === '') {
+          setErrors({ ...errors, dateError: 'Please select a date' });
+          formIsValid = false;
+        }
+    
+        if (updatedTitheData?.amount === undefined || updatedTitheData?.amount === '') {
+          setErrors({ ...errors, amountError: 'Please enter the amount' });
+          formIsValid = false;
+        }
+
+        if(formIsValid) {
+            console.log("Form is valid 1")
+            try{
+                const res = await axiosPrivate.patch(`/tithe/${titheId}`, editedTitheData)
+                console.log("Form is valid 2")
+                setIsLoading(false)
+                navigate('/tithes')
+            } catch(err) {
+                setError(err.message)
+                setIsLoading(false)
+            }
+        }
+        setIsLoading(false)
+    }
+console.log(titheData)
   return (
     <div className='container-fluid'>
         {isLoading ? <Loading/> : 
         <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
-            <h4 className="my-3">Tithe Details<p className='lead fs-6'>Tithe ID #{titheData.id}</p></h4>
-                <form className="needs-validation" noValidate>
-                <div className="row g-3">
-                    <div className="col-sm-4">
-                        <label htmlFor="firstName" className="form-label fw-bold">Member</label>
-                            <select id='member' name='member' className='form-select' value={editedTitheData?.memberId ? editedTitheData?.memberId : titheData?.memberId} onChange={handleChange}>
-                                {members?.map((member) => (
-                                    <option key={member?.id} id={member?.id} value={member?.id}>{member?.firstName + " " + member?.lastName}</option>
-                                ))}
-                            </select>
-                        <div className="invalid-feedback">
-                            Valid Member is required.
-                        </div>
-                    </div>
+            <h4 className="my-3">Tithe Details<p className='lead fs-6'>Tithe ID #{titheData?.id}</p></h4>
+                <Form onSubmit={handleSubmit} className='col-md-6'>
+                    <Form.Group>
+                        <Form.Label>Select Option:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            name="memberId"
+                            value={editedTitheData?.memberId ? editedTitheData?.memberId : titheData?.memberId}
+                            onChange={handleChange}
+                            isInvalid={!!errors.memberError}
+                        >
+                            <option value="">-- Select an option --</option>
+                            {members?.map((member, index) => (
+                                 <option value={member.id} key={index}>{member.firstName + " " + member.lastName}</option>
+                             ))}
+                        </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                            {errors.memberError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                    <div className="col-sm-4">
-                        <label htmlFor="middleName" className="form-label fw-bold">Date</label>
-                        <input type="date" className="form-control" id="middleName" placeholder="" defaultValue={titheData?.date} name='date' onChange={handleChange} required/>
-                        <div className="invalid-feedback">
-                            Valid Date is required.
-                        </div>
-                    </div>
+                    <Form.Group>
+                        <Form.Label>Select Date:</Form.Label>
+                        <Form.Control
+                            name="date"
+                            type="date"
+                            defaultValue={titheData?.date}
+                            onChange={handleChange}
+                            isInvalid={!!errors.dateError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.dateError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                    <div className="col-sm-4">
-                        <label htmlFor="lastName" className="form-label fw-bold">Amount</label>
-                        <input type="number" className="form-control" id="lastName" placeholder="" defaultValue={titheData?.amount} name='amount' onInput={handleChange} required/>
-                        <div className="invalid-feedback">
-                            Valid amount is required.
-                        </div>
-                    </div>
+                    <Form.Group>
+                        <Form.Label>Amount:</Form.Label>
+                        <Form.Control
+                            min={0}
+                            name="amount"
+                            type="number"
+                            defaultValue={titheData?.amount}
+                            onChange={handleChange}
+                            isInvalid={!!errors.amountError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.amountError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                    <div className='w-sm-25'>
-                        <button className='btn btn-primary w-sm-25' data-bs-toggle="modal" data-bs-target="#saveModal" type='button'>Save</button>
-                        <button type='button' onClick={()=>navigate('/tithes')} className='btn btn-danger mx-2 w-sm-25'>Cancel</button>
-                    </div>
+                    <Button type="submit" variant="primary" className='mt-2'>Save</Button>
+                    <Button onClick={()=>navigate(-1)} type="button" variant="danger" className='mt-2 ms-2'>Cancel</Button>
 
-                    <Modal handleClick={handleSave} type={"Tithe"} action={'Update'}/>
-
-                    {error == "" ? "" : <p className='text-white bg-danger w-50 text-center'>{error}. Please try again</p>}
-                    
-            </div>
-            </form>
+                    {error == "" ? "" : <p className='bg-danger text-white text-center w-50 mt-2'>{error}. Please try again</p>}
+                </Form>
         </div>
     </div>}
     </div>

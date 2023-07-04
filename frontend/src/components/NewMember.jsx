@@ -3,12 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import Modal from './Modal'
 import Loading from './Loading'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
+import { Button, Form } from 'react-bootstrap'
 
 const NewMember = () => {
     const axiosPrivate = useAxiosPrivate()
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [errors, setErrors] = useState({
+        firstNameError: '',
+        lastNameError: '',
+        emailError: ''
+    })
     const [memberInfo, setMemberInfo] = useState({
         active: "yes",
         province: "ON",
@@ -21,18 +27,47 @@ const NewMember = () => {
     })
     const navigate = useNavigate()
 
-    const handleSave = async () => {
+    const handleChange = (e) => {
+        setMemberInfo((prev)=>({...prev, [e.target.name]: e.target.value}))
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
         setError("")
+        setErrors({
+            firstNameError: '',
+            lastNameError: '',
+            emailError: ''
+        })
         setIsLoading(true)
-        try {
-            const res = await axiosPrivate.post("/member", memberInfo)
-            setIsLoading(false)
-            navigate('/members')
-        } catch(err) {
-            setIsLoading(false)
-            setError(err.message)
-            console.log(err)
+
+        let formIsValid = true
+
+        if(memberInfo?.firstName === undefined || memberInfo?.firstName === '') {
+            setErrors({...errors, firstNameError: "Enter a First Name"})
+            formIsValid = false
         }
+        if(memberInfo?.lastName === undefined || memberInfo?.lastName === '') {
+            setErrors({...errors, lastNameError: "Enter a Last Name"})
+            formIsValid = false
+        }
+        if(memberInfo?.email1 === undefined || memberInfo?.email1 === '') {
+            setErrors({...errors, emailError: "Enter an email"})
+            formIsValid = false
+        }
+
+        if(formIsValid) {
+            try {
+                const res = await axiosPrivate.post("/member", memberInfo)
+                setIsLoading(false)
+                navigate('/members')
+            } catch(err) {
+                setIsLoading(false)
+                setError(err.message)
+                console.log(err)
+            }
+        }
+        setIsLoading(false)
     }
 
     useEffect(() => {
@@ -57,211 +92,307 @@ const NewMember = () => {
         }
 
     }, [])
-
+console.log(memberInfo)
   return (
     <div className='container-fluid'>
         {isLoading ? <Loading/>:
         <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
             <h4 className="my-3">New Member</h4>
-                <form className="needs-validation" noValidate>
-                <div className="row g-3">
-                    <div className="col-sm-4">
-                        <label for="firstName" className="form-label fw-bold">First name</label>
-                        <input type="text" className="form-control" id="firstName" placeholder="" defaultValue={''} required onInput={(e)=>setMemberInfo((prev)=>({...prev, firstName: e.target.value}))}/>
-                        <div className="invalid-feedback">
-                            Valid first name is required.
+                <Form onSubmit={handleSubmit} className='mb-2'>
+                    <div className="d-flex w-100 flex-wrap justify-content-md-center">
+                        <div className='col-12 col-sm-4 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>First Name</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='firstName'
+                                    onInput={handleChange}
+                                    isInvalid={!!errors.firstNameError}
+                                />
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors?.firstNameError}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Middle Name</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='middleName'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Last Name</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='lastName'
+                                    onInput={handleChange}
+                                    isInvalid={!!errors.lastNameError}
+                                />
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors?.lastNameError}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Email 1</Form.Label>
+                                <Form.Control
+                                    type='email'
+                                    name='email1'
+                                    onInput={handleChange}
+                                    isInvalid={!!errors.emailError}
+                                />
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors?.emailError}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Email 2</Form.Label>
+                                <Form.Control
+                                    type='email'
+                                    name='email2'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Phone 1</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='phone1' 
+                                    placeholder='519-123-4567'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Phone 2</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='phone2'
+                                    placeholder='519-123-4567'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                        </div>
+
+                        <div className='col-12 col-sm-1 d-sm-flex flex-column align-items-center'>
+                            <span style={{backgroundColor:"#c7c8c9", width:"1px"}} className='h-100'></span>
+                        </div>
+
+                        <div className='col-12 col-sm-4 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Address 1</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='address1'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Address 2</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='address2'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>City</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='city'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Province</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name="province"
+                                    onChange={handleChange}
+                                    defaultValue={'ON'}
+                                >
+                                    <option value="" disabled>Choose..</option>
+                                    <option value="AB">Alberta</option>
+                                    <option value="BC">British Columbia</option>
+                                    <option value="MB">Manitoba</option>
+                                    <option value="NB">New Brunswick</option>
+                                    <option value="NL">Newfoundland and Labrador</option>
+                                    <option value="NS">Nova Scotia</option>
+                                    <option value="ON">Ontario</option>
+                                    <option value="PEI">Prince Edward Island</option>
+                                    <option value="QC">Quebec</option>
+                                    <option value="SK">Saskatchewan</option>
+                                    <option value="YK">Yukon</option>
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Postal Code</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    name='postalCode'
+                                    defaultValue={''}  
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Country</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name="country"
+                                    onChange={handleChange}
+                                    defaultValue={'Canada'}
+                                >
+                                    <option value="" disabled>Choose..</option>
+                                    <option value={'United States'}>United States</option>
+                                    <option value={'Canada'}>Canada</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+
+                        <div className='col-12 col-sm-1 d-sm-flex flex-column align-items-center'>
+                            <span style={{backgroundColor:"#c7c8c9", width:"1px"}} className='h-100'></span>
+                        </div>
+
+                        <div className='col-12 col-sm-2 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Sex</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='sex'  
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Choose..</option>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Date of Birth</Form.Label>
+                                <Form.Control
+                                    type='date'
+                                    name='dob'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Date of Joining</Form.Label>
+                                <Form.Control
+                                    type='date'
+                                    name='doj'
+                                    onInput={handleChange}
+                                />
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Active ?</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='active'  
+                                    onChange={handleChange}
+                                    defaultValue={'yes'}
+                                >
+                                    <option value="">Choose..</option>
+                                    <option value={'yes'}>Yes</option>
+                                    <option value={'no'}>No</option>
+                                </Form.Control>
+                            </Form.Group>
                         </div>
                     </div>
 
-                    <div className="col-sm-4">
-                        <label for="middleName" className="form-label fw-bold">Middle name</label>
-                        <input type="text" className="form-control" id="middleName" placeholder="" defaultValue={''} onInput={(e)=>setMemberInfo((prev)=>({...prev, middleName: e.target.value}))}/>
-                    </div>
+                    <hr/>
 
-                    <div className="col-sm-4">
-                        <label for="lastName" className="form-label fw-bold">Last name</label>
-                        <input type="text" className="form-control" id="lastName" placeholder="" defaultValue={''} required onInput={(e)=>setMemberInfo((prev)=>({...prev, lastName: e.target.value}))}/>
-                        <div className="invalid-feedback">
-                            Valid last name is required.
+                    <div className="d-flex w-100 flex-wrap justify-content-md-center">
+                        <div className='col-12 col-sm-4 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Spouse</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='spouse'
+                                    onChange={handleChange}
+                                >
+                                    <option value={0}>Not Applicable</option>
+                                    {members?.map((member) => (
+                                        <option value={member.id}>{member.firstName + " " + member.lastName} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+
+                        <div className='col-12 col-sm-1 d-flex flex-column align-items-center'>
+                            <span style={{backgroundColor:"#c7c8c9", width:"1px"}} className='h-100'></span>
+                        </div>
+
+                        <div className='col-12 col-sm-3 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Child 1</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='child1'
+                                    onChange={handleChange}
+                                >
+                                    <option value={0}>Not Applicable</option>
+                                    {members?.map((member) => (
+                                        <option value={member.id}>{member.firstName + " " + member.lastName} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Child 2</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='child2'
+                                    onChange={handleChange}
+                                >
+                                    <option value={0}>Not Applicable</option>
+                                    {members?.map((member) => (
+                                        <option value={member.id}>{member.firstName + " " + member.lastName} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </div>
+
+                        <div className='col-12 col-sm-1 d-flex flex-column align-items-center'>
+                            <span style={{backgroundColor:"#c7c8c9", width:"1px"}} className='h-100'></span>
+                        </div>
+
+                        <div className='col-12 col-sm-3 d-md-flex flex-column align-items-center'>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Child 3</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='child3'
+                                    onChange={handleChange}
+                                >
+                                    <option value={0}>Not Applicable</option>
+                                    {members?.map((member) => (
+                                        <option value={member.id}>{member.firstName + " " + member.lastName} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className='col-md-10'>
+                                <Form.Label>Child 4</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name='child4'
+                                    onChange={handleChange}
+                                >
+                                    <option value={0}>Not Applicable</option>
+                                    {members?.map((member) => (
+                                        <option value={member.id}>{member.firstName + " " + member.lastName} </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
                         </div>
                     </div>
 
-                    <div className="col-sm-3">
-                        <label for="sex" className="form-label fw-bold">Sex</label>
-                        <select name="sex" id="sex" defaultValue={"M"} className="form-select" onChange={(e)=>setMemberInfo((prev)=>({...prev, sex: e.target.value}))}>
-                            <option value="">Choose..</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                        </select>
+                    <div className='mt-5 d-flex align-items-center justify-content-center'>
+                        <Button type="submit" variant="primary" className=''>Save</Button>
+                        <Button onClick={()=>navigate(-1)} type="button" variant="danger" className='ms-2'>Cancel</Button>
                     </div>
 
-                    <div className="col-sm-3">
-                        <label for="dob" className="form-label fw-bold">Date of Birth</label>
-                        <input type="date" name="dob" id="dob" className='form-control' defaultValue={""} onChange={(e)=>setMemberInfo((prev)=>({...prev, dob: e.target.value}))}/>
-                    </div>
 
-                    <div className="col-sm-3">
-                        <label for="doj" className="form-label fw-bold">Date of Joining</label>
-                        <input type="date" name="doj" id="doj" className='form-control' defaultValue={""} required onChange={(e)=>setMemberInfo((prev)=>({...prev, doj: e.target.value}))}/>
-                        <div className="invalid-feedback">
-                            Valid Member is required.
-                        </div>
-                    </div>
+                    {error == "" ? "" : <p className='bg-danger text-white text-center w-50 mt-2'>{error}. Please try again</p>}
 
-                    <div className="col-sm-3">
-                        <label for="active" className="form-label fw-bold">Active ?</label>
-                        <select name="active" id="active" className='form-select' defaultValue={true} onChange={(e)=>setMemberInfo((prev)=>({...prev, active: e.target.value ? true : false}))}>
-                            <option value="">Choose..</option>
-                            <option value={'yes'}>Yes</option>
-                            <option value={'no'}>No</option>
-                        </select>
-                    </div>
-
-                    <div className="col-sm-6">
-                        <label for="address1" className="form-label fw-bold">Address 1</label>
-                        <input type="text" className="form-control" id="address1" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, address1: e.target.value}))}/>
-                    </div>
-
-                    <div className="col-sm-6">
-                        <label for="address2" className="form-label fw-bold">Address 2</label>
-                        <input type="text" className="form-control" id="address2" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, address2: e.target.value}))}/>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="city" className="form-label fw-bold">City</label>
-                        <input type="text" className="form-control" id="city" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, city: e.target.value}))}/>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="province" className="form-label fw-bold">Province</label>
-                        <select name="province" id="province" className='form-select' defaultValue={"ON"} onChange={(e)=>setMemberInfo((prev)=>({...prev, province: e.target.value}))}>
-                            <option value="" disabled>Choose..</option>
-                            <option value="AB">Alberta</option>
-                            <option value="BC">British Columbia</option>
-                            <option value="MB">Manitoba</option>
-                            <option value="NB">New Brunswick</option>
-                            <option value="NL">Newfoundland and Labrador</option>
-                            <option value="NS">Nova Scotia</option>
-                            <option value="ON">Ontario</option>
-                            <option value="PEI">Prince Edward Island</option>
-                            <option value="QC">Quebec</option>
-                            <option value="SK">Saskatchewan</option>
-                            <option value="YK">Yukon</option>
-                        </select>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="postalCode" className="form-label fw-bold">Postal Code</label>
-                        <input type="text" className="form-control" id="postalCode" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, postalCode: e.target.value}))}/>
-                    </div>
-
-                    <div className="col-sm-3">
-                    <label for="country" className="form-label fw-bold">Country</label>
-                    <select className="form-select" id="country" defaultValue={"Canada"} onChange={(e)=>setMemberInfo((prev)=>({...prev, country: e.target.value}))}>
-                        <option disabled value="">Choose...</option>
-                        <option value={'United States'}>United States</option>
-                        <option value={'Canada'}>Canada</option>
-                    </select>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="email1" className="form-label fw-bold">Email 1</label>
-                        <input type="email" className="form-control" id="email1" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, email1: e.target.value}))}/>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="email2" className="form-label fw-bold">Email 2</label>
-                        <input type="email" className="form-control" id="email2" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, email2: e.target.value}))}/>
-                        <div className="invalid-feedback">
-                            Valid Member is required.
-                        </div>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="phone1" className="form-label fw-bold">Phone 1</label>
-                        <div className="input-group has-validation">
-                            <span className="input-group-text">+1</span>
-                            <input type="text" className="form-control" id="phone1" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, phone1: e.target.value}))}/>
-                        </div>
-                    </div>
-                    <div className="col-sm-3">
-                        <label for="phone2" className="form-label fw-bold">Phone 2</label>
-                        <div className="input-group">
-                            <span className="input-group-text">+1</span>
-                            <input type="text" className="form-control" id="phone2" placeholder="" defaultValue={""} onInput={(e)=>setMemberInfo((prev)=>({...prev, phone2: e.target.value}))}/>
-                        </div>
-                    </div>
-
-                    <div className="my-4"/>
-
-                    <div className="col-sm-3">
-                        <label for="spouse" className="form-label fw-bold">Spouse</label>
-                        <select className="form-select" id="spouse" required defaultValue={0} onChange={(e)=>setMemberInfo((prev)=>({...prev, spouse: e.target.value}))}>
-                            <option value={0} disabled>Not Applicable</option>
-                            {members?.map((member) => (
-                                <option value={member.id}>{member.firstName + " " + member.lastName} </option>
-                            ))}
-
-                        </select>
-                    </div>
-
-                    <div className="col-sm-9">
-
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="child1" className="form-label fw-bold">Child 1</label>
-                        <select className="form-select" id="child1" defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child1: e.target.value}))}>
-                        <option  value={0} disabled>Not Applicable</option>
-                            {members?.map((member) => (
-                                <option value={member.id}>{member.firstName + " " + member.lastName} </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="child2" className="form-label fw-bold">Child 2</label>
-                        <select className="form-select" id="child2" defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child2: e.target.value}))}>
-                        <option value={0} disabled>Not Applicable</option>
-                            {members?.map((member) => (
-                                <option value={member.id}>{member.firstName + " " + member.lastName} </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="child3" className="form-label fw-bold">Child 3</label>
-                        <select className="form-select" id="child3"  defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child3: e.target.value}))}>
-                        <option value={0} disabled>Not Applicable</option>
-                            {members?.map((member) => (
-                                <option value={member.id}>{member.firstName + " " + member.lastName} </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="col-sm-3">
-                        <label for="child4" className="form-label fw-bold">Child 4</label>
-                        <select className="form-select" id="child4"  defaultValue={0} required onChange={(e)=>setMemberInfo((prev)=>({...prev, child4: e.target.value}))}>
-                        <option value={0} disabled>Not Applicable</option>
-                            {members?.map((member) => (
-                                <option value={member.id}>{member.firstName + " " + member.lastName} </option>
-                            ))}
-                        </select>
-                    </div>
-
-                </div>
-
-                <div className='w-sm-25'>
-                    <button className="btn btn-primary w-sm-25 my-4" data-bs-toggle="modal" data-bs-target="#saveModal" type="button">Save</button>
-                    <button type='button' onClick={()=>navigate(-1)} className='btn btn-danger w-sm-25 mx-2'>Cancel</button>
-                </div>
-
-                <Modal handleClick={handleSave} type={'Member'} action={'Create'}/>
-
-                {error == "" ? "" : <p className='bg-danger text-white text-center'>{error}. Please try again.</p>}
-
-                </form>
+                </Form>
             </div>
         </div>}
         </div>

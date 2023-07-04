@@ -35,9 +35,9 @@ const DonationSlip = () => {
         e.preventDefault()
         const formData = new FormData()
         const donationData = {
-            firstName : tithe.member.firstName,
-            lastName : tithe.member.lastName,
-            email : tithe.member.email,
+            firstName : tithe?.member.firstName,
+            lastName : tithe?.member.lastName,
+            email : tithe?.member.email,
         }
         formData.append('donationData', JSON.stringify(donationData))
         console.log(formData)
@@ -77,16 +77,16 @@ const DonationSlip = () => {
                     {!isLoading ? titheData?.map((tithe, index) => (
                         // index < count &&
                         <tr key={index}>
-                            <td key={1}>{tithe.memberId}</td>
-                            <td key={2}>{tithe.member.firstName}</td>
-                            <td key={3}>{tithe.member.lastName}</td>
-                            <td key={4}>${tithe.totalAmount}</td>
+                            <td key={1}>{tithe?.memberId}</td>
+                            <td key={2}>{tithe?.member?.firstName}</td>
+                            <td key={3}>{tithe?.member?.lastName}</td>
+                            <td key={4}>${tithe?.totalAmount}</td>
                             <td key={5}>
                                 <Link className='btn btn-primary btn-sm' 
-                                        to={`/pdfView/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe.member.address1}&address2=${tithe.member.address2}&city=${tithe.member.city}&province=${tithe.member.province}&country=${tithe.member.country}&postalCode=${tithe.member.postalCode}&titheAmount=${tithe?.totalAmount}`}>
+                                        to={`/pdfView/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe?.member?.address1}&address2=${tithe?.member?.address2}&city=${tithe?.member?.city}&province=${tithe?.member?.province}&country=${tithe?.member?.country}&postalCode=${tithe?.member?.postalCode}&titheAmount=${tithe?.totalAmount}`}>
                                             View</Link>       
                                 <Link className='btn btn-primary btn-sm ms-2' 
-                                        to={`/pdfDownload/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe.member.address1}&address2=${tithe.member.address2}&city=${tithe.member.city}&province=${tithe.member.province}&country=${tithe.member.country}&postalCode=${tithe.member.postalCode}&titheAmount=${tithe?.totalAmount}`}>
+                                        to={`/pdfDownload/?memberId=${tithe?.memberId}&firstName=${tithe?.member?.firstName}&lastName=${tithe?.member?.lastName}&year=${year}&address1=${tithe?.member?.address1}&address2=${tithe?.member?.address2}&city=${tithe?.member?.city}&province=${tithe?.member?.province}&country=${tithe?.member?.country}&postalCode=${tithe?.member?.postalCode}&titheAmount=${tithe?.totalAmount}`}>
                                             Download</Link>
                                 <button className='btn btn-primary btn-sm ms-2' onClick={(e)=>handleEmail(e, tithe)}>
                                             Email</button>

@@ -46,7 +46,7 @@ useEffect(()=> {
 
                 <div className="card col-lg-3 col-6 text-center">
                   <div className="card-body">
-                    <h1 className="card-title">{totalMembers}</h1>
+                    <h1 data-testid="totalMembers" className="card-title">{totalMembers}</h1>
                     <p className='card-text'>Total Members</p>
                   </div>
                 </div>

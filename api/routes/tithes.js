@@ -191,7 +191,9 @@ router.get('/reports/titheTotal', verifyRoles(ROLES_LIST.Admin), (req, res) => {
 
     Tithe.findAll({
         attributes: [
-            'memberId', 
+            'memberId',
+            'date',
+            'amount', 
             [sequelize.fn('sum', sequelize.col('amount')), 'totalAmount'],
         ], 
         group: 'memberId',

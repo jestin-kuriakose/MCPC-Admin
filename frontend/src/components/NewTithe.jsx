@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'
 import Modal from './Modal'
 import Loading from './Loading'
@@ -10,12 +11,17 @@ const NewTithe = () => {
     const [members, setMembers] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [errors, setErrors] = useState({
+        optionError: '',
+        dateError: '',
+        numberError: ''
+      });
     const axiosPrivate = useAxiosPrivate()
 
     useEffect(() => {
         const fetchMembers = async() => {
             try {
-                const res = await axiosPrivate.get("/member")
+                const res = await axiosPrivate.get("/member/memberData")
                 setMembers(res.data)
             } catch(err) {
                 console.log(err)
@@ -24,66 +30,108 @@ const NewTithe = () => {
         fetchMembers()
     }, [])
 
-    const handleSave = async() => {
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
         setIsLoading(true)
         setError("")
-        try{
-            const res = await axiosPrivate.post("/tithe", titheInfo)
-            setIsLoading(false)
-            navigate('/tithes')
-        } catch(err) {
-            setIsLoading(false)
-            setError(err.message)
+        setErrors({
+            optionError: '',
+            dateError: '',
+            numberError: ''
+          })
+
+        let formIsValid = true;
+    
+        if (titheInfo?.memberId === undefined || titheInfo?.memberId === '') {
+          setErrors({ ...errors, memberError: 'Please select a member' });
+          formIsValid = false;
         }
-        
+    
+        if (titheInfo?.date === '' || titheInfo?.date === '') {
+          setErrors({ ...errors, dateError: 'Please select a date' });
+          formIsValid = false;
+        }
+    
+        if (titheInfo?.amount === undefined || titheInfo?.amount === '') {
+          setErrors({ ...errors, amountError: 'Please enter an amount' });
+          formIsValid = false;
+        }
+
+        if(formIsValid) {
+            try{
+                const res = await axiosPrivate.post("/tithe", titheInfo)
+                setIsLoading(false)
+                navigate('/tithes')
+            } catch(err) {
+                setIsLoading(false)
+                setError(err.message)
+            }
+        }
+        setIsLoading(false)
     }
+
   return (
     <div className='container-fluid'>
-        {isLoading ? <Loading/> : <div className="row">
+        {isLoading ? <Loading/> : 
+        <div className="row">
             <div className="col-md-9 col-lg-10 ms-sm-auto">
                 <h3 className="my-3">New Tithe</h3>
-                <form action="">
-                    <div className="row g-3">
-                        <div className="col-sm-4">
-                            <label for="member" className="form-label fw-bold">Member</label>
-                            <select name="member" id="member" className="form-select" defaultValue={''} required onChange={(e)=>setTitheInfo((prev)=>({...prev, memberId: e.target.value}))}>
-                                <option value="" disabled>Choose...</option>
-                                    {members?.map((member) => (
-                                        <option value={member.id}>{member.firstName + " " + member.lastName}</option>
-                                    ))}
-                            </select>
-                            <div className="invalid-feedback">
-                                Valid Member is required.
-                            </div>
-                        </div>
+                <Form onSubmit={handleSubmit} className='col-md-6'>
+                    <Form.Group>
+                        <Form.Label>Select Member:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={titheInfo?.memberId}
+                            onChange={(e)=>setTitheInfo((prev)=>({...prev, memberId: e.target.value}))}
+                            isInvalid={!!errors.memberError}
+                        >
+                            <option value="">-- Select a Member --</option>
+                            {members?.map((member, index) => (
+                                 <option value={member.id} key={index}>{member.firstName + " " + member.lastName}</option>
+                             ))}
+                        </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                            {errors.memberError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                        <div className="col-sm-2">
-                            <label htmlFor="" className="form-label">Date</label>
-                            <input onChange={(e)=>setTitheInfo((prev)=>({...prev, date: new Date(e.target.value).toLocaleDateString()}))} defaultValue={new Date().toISOString().split('T')[0]} type="date" className='form-control' required/>
-                            <div className="invalid-feedback">
-                                Valid Member is required.
-                        </div>
-                        </div>
+                    <Form.Group>
+                        <Form.Label>Select Date:</Form.Label>
+                        <Form.Control
+                            type="date"
+                            value={new Date(titheInfo?.date).toISOString().split('T')[0]}
+                            onChange={(e)=>setTitheInfo((prev)=>({...prev, date: new Date(e.target.value).toLocaleDateString()}))}
+                            isInvalid={!!errors.dateError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.dateError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                        <div className="col-sm-2">
-                            <label className="form-label">Amount $</label>
-                            <input onInput={(e)=>setTitheInfo((prev) => ({...prev, amount: e.target.value}))} defaultValue={'0'} type="number" name="amount" id="amount" className='form-control' required/>
-                            <div className="invalid-feedback">
-                                Valid Member is required.
-                            </div>
-                        </div>
+                    <Form.Group>
+                        <Form.Label>Amount:</Form.Label>
+                        <Form.Control
+                            min={0}
+                            type="number"
+                            value={titheInfo?.amount}
+                            onChange={(e)=>setTitheInfo((prev) => ({...prev, amount: e.target.value}))}
+                            isInvalid={!!errors.amountError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {errors.amountError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
 
-                        <div className="w-sm-25">
-                            <button className="btn btn-primary w-sm-25" data-bs-toggle="modal" data-bs-target="#saveModal" type="button">Save</button>
-                            <button onClick={()=>navigate(-1)} className="btn btn-danger btn-sm-sm mx-1">Cancel</button>
-                        </div>
-                            
-                        {error == "" ? "" : <p className='bg-danger text-white text-center w-50'>{error}. Please try again</p>}
-                        <Modal handleClick={handleSave} type={'Tithe'} action={'Create'}/>
-                    </div>
-                </form>
+                    <Button type="submit" variant="primary" className='mt-2'>Save</Button>
+                    <Button onClick={()=>navigate(-1)} type="button" variant="danger" className='mt-2 ms-2'>Cancel</Button>
+
+                    {error == "" ? "" : <p className='bg-danger text-white text-center w-50 mt-2'>{error}. Please try again</p>}
+                </Form>
+
             </div>
-        </div>}
+        </div>
+    }
     </div>
   )
 }
